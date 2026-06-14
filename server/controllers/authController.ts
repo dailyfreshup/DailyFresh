@@ -39,7 +39,7 @@ export const register = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Phone number already exist" });
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = await prisma.user.create({
-    data: { name, email: email.toLowerCase(), password: hashedPassword },
+    data: { name, email: email.toLowerCase(),phone:phone, password: hashedPassword },
   });
   const token = generateToken(user.id);
   const userData: any = { ...user };
@@ -52,11 +52,11 @@ export const register = async (req: Request, res: Response) => {
 // POST /api/auth/login
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  if (!!email || !password)
+  if (!email || !password)
     return res.status(400).json({ message: "Provide all details" });
 
   const user = await prisma.user.findUnique({
-    where: { email: email.toLowerCase(), include: { addresses: true } },
+    where: { email: email.toLowerCase()}, include: { addresses: true },
   });
   if (!user) return res.status(401).json({ message: "User doesn't exist" });
   const isMatch = await bcrypt.compare(password, user.password);
