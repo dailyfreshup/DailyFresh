@@ -12,7 +12,7 @@ model User {
   name      String
   email     String    @unique
   password  String
-  phone     String?   @default("")
+  phone     String?   @unique
   avatar    String?   @default("")
   addresses Address[]
   orders    Order[]
@@ -46,9 +46,7 @@ model Product {
   category      String
   unit          String?  @default("piece")
   stock         Int?     @default(0)
-  isOrganic     Boolean? @default(false)
-  rating        Float?   @default(0)
-  reviewCount   Int?     @default(0)
+  isPopular    Boolean? @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -62,13 +60,11 @@ model Order {
   paymentMethod   String @default("cash")
   subtotal        Float
   deliveryFee     Float? @default(0)
-  tax             Float? @default(0)
+  platformFee             Float? @default(0)
   total           Float
   status          String @default("Placed")
   statusHistory   Json
-
   isPaid            Boolean?         @default(false)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

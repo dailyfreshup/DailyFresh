@@ -30,16 +30,12 @@ export type ProductAvgAggregateOutputType = {
   price: number | null
   originalPrice: number | null
   stock: number | null
-  rating: number | null
-  reviewCount: number | null
 }
 
 export type ProductSumAggregateOutputType = {
   price: number | null
   originalPrice: number | null
   stock: number | null
-  rating: number | null
-  reviewCount: number | null
 }
 
 export type ProductMinAggregateOutputType = {
@@ -52,9 +48,7 @@ export type ProductMinAggregateOutputType = {
   category: string | null
   unit: string | null
   stock: number | null
-  isOrganic: boolean | null
-  rating: number | null
-  reviewCount: number | null
+  isPopular: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -69,9 +63,7 @@ export type ProductMaxAggregateOutputType = {
   category: string | null
   unit: string | null
   stock: number | null
-  isOrganic: boolean | null
-  rating: number | null
-  reviewCount: number | null
+  isPopular: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -86,9 +78,7 @@ export type ProductCountAggregateOutputType = {
   category: number
   unit: number
   stock: number
-  isOrganic: number
-  rating: number
-  reviewCount: number
+  isPopular: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -99,16 +89,12 @@ export type ProductAvgAggregateInputType = {
   price?: true
   originalPrice?: true
   stock?: true
-  rating?: true
-  reviewCount?: true
 }
 
 export type ProductSumAggregateInputType = {
   price?: true
   originalPrice?: true
   stock?: true
-  rating?: true
-  reviewCount?: true
 }
 
 export type ProductMinAggregateInputType = {
@@ -121,9 +107,7 @@ export type ProductMinAggregateInputType = {
   category?: true
   unit?: true
   stock?: true
-  isOrganic?: true
-  rating?: true
-  reviewCount?: true
+  isPopular?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -138,9 +122,7 @@ export type ProductMaxAggregateInputType = {
   category?: true
   unit?: true
   stock?: true
-  isOrganic?: true
-  rating?: true
-  reviewCount?: true
+  isPopular?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -155,9 +137,7 @@ export type ProductCountAggregateInputType = {
   category?: true
   unit?: true
   stock?: true
-  isOrganic?: true
-  rating?: true
-  reviewCount?: true
+  isPopular?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -259,9 +239,7 @@ export type ProductGroupByOutputType = {
   category: string
   unit: string | null
   stock: number | null
-  isOrganic: boolean | null
-  rating: number | null
-  reviewCount: number | null
+  isPopular: boolean | null
   createdAt: Date
   updatedAt: Date
   _count: ProductCountAggregateOutputType | null
@@ -299,9 +277,7 @@ export type ProductWhereInput = {
   category?: Prisma.StringFilter<"Product"> | string
   unit?: Prisma.StringNullableFilter<"Product"> | string | null
   stock?: Prisma.IntNullableFilter<"Product"> | number | null
-  isOrganic?: Prisma.BoolNullableFilter<"Product"> | boolean | null
-  rating?: Prisma.FloatNullableFilter<"Product"> | number | null
-  reviewCount?: Prisma.IntNullableFilter<"Product"> | number | null
+  isPopular?: Prisma.BoolNullableFilter<"Product"> | boolean | null
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
 }
@@ -316,9 +292,7 @@ export type ProductOrderByWithRelationInput = {
   category?: Prisma.SortOrder
   unit?: Prisma.SortOrderInput | Prisma.SortOrder
   stock?: Prisma.SortOrderInput | Prisma.SortOrder
-  isOrganic?: Prisma.SortOrderInput | Prisma.SortOrder
-  rating?: Prisma.SortOrderInput | Prisma.SortOrder
-  reviewCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  isPopular?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -336,9 +310,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   category?: Prisma.StringFilter<"Product"> | string
   unit?: Prisma.StringNullableFilter<"Product"> | string | null
   stock?: Prisma.IntNullableFilter<"Product"> | number | null
-  isOrganic?: Prisma.BoolNullableFilter<"Product"> | boolean | null
-  rating?: Prisma.FloatNullableFilter<"Product"> | number | null
-  reviewCount?: Prisma.IntNullableFilter<"Product"> | number | null
+  isPopular?: Prisma.BoolNullableFilter<"Product"> | boolean | null
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
 }, "id">
@@ -353,9 +325,7 @@ export type ProductOrderByWithAggregationInput = {
   category?: Prisma.SortOrder
   unit?: Prisma.SortOrderInput | Prisma.SortOrder
   stock?: Prisma.SortOrderInput | Prisma.SortOrder
-  isOrganic?: Prisma.SortOrderInput | Prisma.SortOrder
-  rating?: Prisma.SortOrderInput | Prisma.SortOrder
-  reviewCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  isPopular?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductCountOrderByAggregateInput
@@ -378,9 +348,7 @@ export type ProductScalarWhereWithAggregatesInput = {
   category?: Prisma.StringWithAggregatesFilter<"Product"> | string
   unit?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   stock?: Prisma.IntNullableWithAggregatesFilter<"Product"> | number | null
-  isOrganic?: Prisma.BoolNullableWithAggregatesFilter<"Product"> | boolean | null
-  rating?: Prisma.FloatNullableWithAggregatesFilter<"Product"> | number | null
-  reviewCount?: Prisma.IntNullableWithAggregatesFilter<"Product"> | number | null
+  isPopular?: Prisma.BoolNullableWithAggregatesFilter<"Product"> | boolean | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
 }
@@ -395,9 +363,7 @@ export type ProductCreateInput = {
   category: string
   unit?: string | null
   stock?: number | null
-  isOrganic?: boolean | null
-  rating?: number | null
-  reviewCount?: number | null
+  isPopular?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -412,9 +378,7 @@ export type ProductUncheckedCreateInput = {
   category: string
   unit?: string | null
   stock?: number | null
-  isOrganic?: boolean | null
-  rating?: number | null
-  reviewCount?: number | null
+  isPopular?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -429,9 +393,7 @@ export type ProductUpdateInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isOrganic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  reviewCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPopular?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -446,9 +408,7 @@ export type ProductUncheckedUpdateInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isOrganic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  reviewCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPopular?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -463,9 +423,7 @@ export type ProductCreateManyInput = {
   category: string
   unit?: string | null
   stock?: number | null
-  isOrganic?: boolean | null
-  rating?: number | null
-  reviewCount?: number | null
+  isPopular?: boolean | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -480,9 +438,7 @@ export type ProductUpdateManyMutationInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isOrganic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  reviewCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPopular?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -497,9 +453,7 @@ export type ProductUncheckedUpdateManyInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stock?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isOrganic?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  rating?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  reviewCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPopular?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -514,9 +468,7 @@ export type ProductCountOrderByAggregateInput = {
   category?: Prisma.SortOrder
   unit?: Prisma.SortOrder
   stock?: Prisma.SortOrder
-  isOrganic?: Prisma.SortOrder
-  rating?: Prisma.SortOrder
-  reviewCount?: Prisma.SortOrder
+  isPopular?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -525,8 +477,6 @@ export type ProductAvgOrderByAggregateInput = {
   price?: Prisma.SortOrder
   originalPrice?: Prisma.SortOrder
   stock?: Prisma.SortOrder
-  rating?: Prisma.SortOrder
-  reviewCount?: Prisma.SortOrder
 }
 
 export type ProductMaxOrderByAggregateInput = {
@@ -539,9 +489,7 @@ export type ProductMaxOrderByAggregateInput = {
   category?: Prisma.SortOrder
   unit?: Prisma.SortOrder
   stock?: Prisma.SortOrder
-  isOrganic?: Prisma.SortOrder
-  rating?: Prisma.SortOrder
-  reviewCount?: Prisma.SortOrder
+  isPopular?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -556,9 +504,7 @@ export type ProductMinOrderByAggregateInput = {
   category?: Prisma.SortOrder
   unit?: Prisma.SortOrder
   stock?: Prisma.SortOrder
-  isOrganic?: Prisma.SortOrder
-  rating?: Prisma.SortOrder
-  reviewCount?: Prisma.SortOrder
+  isPopular?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -567,8 +513,6 @@ export type ProductSumOrderByAggregateInput = {
   price?: Prisma.SortOrder
   originalPrice?: Prisma.SortOrder
   stock?: Prisma.SortOrder
-  rating?: Prisma.SortOrder
-  reviewCount?: Prisma.SortOrder
 }
 
 export type NullableFloatFieldUpdateOperationsInput = {
@@ -603,9 +547,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   category?: boolean
   unit?: boolean
   stock?: boolean
-  isOrganic?: boolean
-  rating?: boolean
-  reviewCount?: boolean
+  isPopular?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["product"]>
@@ -620,9 +562,7 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   category?: boolean
   unit?: boolean
   stock?: boolean
-  isOrganic?: boolean
-  rating?: boolean
-  reviewCount?: boolean
+  isPopular?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["product"]>
@@ -637,9 +577,7 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   category?: boolean
   unit?: boolean
   stock?: boolean
-  isOrganic?: boolean
-  rating?: boolean
-  reviewCount?: boolean
+  isPopular?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["product"]>
@@ -654,14 +592,12 @@ export type ProductSelectScalar = {
   category?: boolean
   unit?: boolean
   stock?: boolean
-  isOrganic?: boolean
-  rating?: boolean
-  reviewCount?: boolean
+  isPopular?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "price" | "originalPrice" | "image" | "category" | "unit" | "stock" | "isOrganic" | "rating" | "reviewCount" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "price" | "originalPrice" | "image" | "category" | "unit" | "stock" | "isPopular" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 
 export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Product"
@@ -676,9 +612,7 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     category: string
     unit: string | null
     stock: number | null
-    isOrganic: boolean | null
-    rating: number | null
-    reviewCount: number | null
+    isPopular: boolean | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["product"]>
@@ -1113,9 +1047,7 @@ export interface ProductFieldRefs {
   readonly category: Prisma.FieldRef<"Product", 'String'>
   readonly unit: Prisma.FieldRef<"Product", 'String'>
   readonly stock: Prisma.FieldRef<"Product", 'Int'>
-  readonly isOrganic: Prisma.FieldRef<"Product", 'Boolean'>
-  readonly rating: Prisma.FieldRef<"Product", 'Float'>
-  readonly reviewCount: Prisma.FieldRef<"Product", 'Int'>
+  readonly isPopular: Prisma.FieldRef<"Product", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Product", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Product", 'DateTime'>
 }
