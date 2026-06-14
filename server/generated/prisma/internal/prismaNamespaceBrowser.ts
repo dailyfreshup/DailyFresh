@@ -115,9 +115,7 @@ export const ProductScalarFieldEnum = {
   category: 'category',
   unit: 'unit',
   stock: 'stock',
-  isOrganic: 'isOrganic',
-  rating: 'rating',
-  reviewCount: 'reviewCount',
+  isPopular: 'isPopular',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -133,7 +131,7 @@ export const OrderScalarFieldEnum = {
   paymentMethod: 'paymentMethod',
   subtotal: 'subtotal',
   deliveryFee: 'deliveryFee',
-  tax: 'tax',
+  platformFee: 'platformFee',
   total: 'total',
   status: 'status',
   statusHistory: 'statusHistory',

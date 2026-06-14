@@ -7,12 +7,14 @@ import {
   MailIcon,
   UserIcon,
   ArrowRightIcon,
+  PhoneIcon,
 } from "lucide-react";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [number, setNumber] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -156,6 +158,34 @@ const Login = () => {
                 />
               </div>
             </div>
+            {!isLogin && (
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Phone Number
+                </label>
+
+                <div className="relative mt-2">
+                  <PhoneIcon className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+
+                  <input
+                    type="tel"
+                    value={number}
+                    onChange={(e) => {
+                      const value = e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 10);
+                      setNumber(value);
+                    }}
+                    placeholder="Enter your phone no."
+                    required
+                    maxLength={10}
+                    pattern="[0-9]{10}"
+                    inputMode="numeric"
+                    className="w-full h-11 sm:h-12 pl-12 pr-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-green-700 outline-none transition-all"
+                  />
+                </div>
+              </div>
+            )}
 
             <div>
               <div className="flex items-center justify-between">
