@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
+import { inngest } from "../inngest/index.js";
 
 // Create order
 // POST api/orders
@@ -72,6 +73,16 @@ export const createOrder = async (req: Request, res: Response) => {
       data: { stock: { decrement: item.quantity } },
     });
   }
+  // Mail to admin if the stock goes below threshold
+  for (const item of orderItems) {
+    await inngest.send({
+      name: "inventory/stock.updated",
+      data: {
+        productId: item.product,
+      },
+    });
+  }
+  // Send mail to user if order placed
 };
 
 // Get all orders of user
