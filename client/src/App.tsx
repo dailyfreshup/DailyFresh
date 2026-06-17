@@ -42,7 +42,7 @@ const App = () => {
           <Route path="products" element={<Products />} />
           <Route path="about" element={<About />} />
           <Route path="contact" element={<Contact />} />
-          <Route path="product/:id" element={<ProductPage />} />
+          <Route path="products/:id" element={<ProductPage />} />
           <Route path="search" element={<SearchResults />} />
           {/* group them in ProtectedRoute(only logged in user can access) as child using outlook */}
           <Route element={<ProtectedRoute />}>
