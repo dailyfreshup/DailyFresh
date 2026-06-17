@@ -40,7 +40,7 @@ const ProductCard = ({ product }: Props) => {
 
   return (
     <div
-      onClick={() => navigate(`/product/${product._id}`)}
+      onClick={() => navigate(`/products/${product._id}`)}
       className="bg-white rounded-2xl border border-zinc-100 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group"
     >
       <div className="relative aspect-square bg-app-cream/30 p-3">
