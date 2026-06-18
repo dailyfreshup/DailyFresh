@@ -14,13 +14,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/authContext";
 
 const Navbar = () => {
-  const user: any = {
-    name: "Akash Rai",
-    email: "akashrai@gmail.com",
-    isAdmin: true,
-  };
+  const { user } = useAuth();
 
   const { cartCount, setIsCartOpen } = useCart();
 
@@ -29,7 +26,7 @@ const Navbar = () => {
   const [showNavbar, setShowNavbar] = useState(true);
 
   const navigate = useNavigate();
-  const location = useLocation(); 
+  const location = useLocation();
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -227,10 +224,7 @@ const Navbar = () => {
                     </div>
                   )}
 
-                  <div
-                    className="py-2"
-                    onClick={() => setUserMenuOpen(false)}
-                  >
+                  <div className="py-2" onClick={() => setUserMenuOpen(false)}>
                     {!user && (
                       <Link to="/login" className="dropdown-link">
                         <UserIcon size={16} />

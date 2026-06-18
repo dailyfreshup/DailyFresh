@@ -9,22 +9,33 @@ import {
   ArrowRightIcon,
   PhoneIcon,
 } from "lucide-react";
+import { useAuth } from "../context/authContext";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [number, setNumber] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.SubmitEvent) => {
+  const { login, register } = useAuth();
+
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setLoading(true);
-
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 2000);
+    try {
+      if (isLogin) {
+        await login(email, password);
+      } else {
+        await register(name, email, phone, password);
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error?.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -169,12 +180,12 @@ const Login = () => {
 
                   <input
                     type="tel"
-                    value={number}
+                    value={phone}
                     onChange={(e) => {
                       const value = e.target.value
                         .replace(/\D/g, "")
                         .slice(0, 10);
-                      setNumber(value);
+                      setPhone(value);
                     }}
                     placeholder="Enter your phone no."
                     required

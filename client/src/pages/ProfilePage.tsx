@@ -7,20 +7,18 @@ import {
   ShieldIcon,
   ChevronRightIcon,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/authContext";
+import Loading from "../components/Loading";
 
 const ProfilePage = () => {
-  const navigate = useNavigate();
-
-  const user = {
-    name: "Akash Rai",
-    email: "akashrai@gmail.com",
-    phone: "+91 9876543210",
-    isAdmin: true,
-  };
+  const { user, loading, logout } = useAuth();
+  if (loading) {
+    return <Loading />;
+  }
 
   const handleLogout = () => {
-    navigate("/");
+    logout();
   };
 
   return (
@@ -35,14 +33,14 @@ const ProfilePage = () => {
       >
         <div className="flex flex-col items-center">
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white text-3xl font-bold text-[#1b3022] shadow-lg">
-            {user.name.charAt(0).toUpperCase()}
+            {user?.name.charAt(0).toUpperCase()}
           </div>
 
-          <h1 className="mt-4 text-2xl font-bold text-white">{user.name}</h1>
+          <h1 className="mt-4 text-2xl font-bold text-white">{user?.name}</h1>
 
-          <p className="mt-1 text-sm text-zinc-200">{user.email}</p>
+          <p className="mt-1 text-sm text-zinc-200">{user?.email}</p>
 
-          <p className="text-sm text-zinc-300">{user.phone}</p>
+          <p className="text-sm text-zinc-300">{user?.phone}</p>
         </div>
       </div>
 
@@ -115,10 +113,10 @@ const ProfilePage = () => {
           </div>
 
           {/* Admin Panel */}
-          {user.isAdmin && (
+          {user?.isAdmin && (
             <div className="overflow-hidden rounded-2xl border border-green-200 bg-green-50 shadow-sm">
               <Link
-                to="/admin/products"
+                to="/admin"
                 className="flex items-center justify-between p-4 transition hover:bg-green-100"
               >
                 <div className="flex items-center gap-3">
