@@ -7,13 +7,12 @@ import {
   ShieldIcon,
   ChevronRightIcon,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import Loading from "../components/Loading";
 
 const ProfilePage = () => {
   const { user, loading, logout } = useAuth();
-  const navigate = useNavigate();
   if (loading) {
     return <Loading />;
   }
