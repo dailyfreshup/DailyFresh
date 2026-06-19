@@ -95,6 +95,11 @@ const Navbar = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setSearchQuery(params.get("q") || "");
+  }, [location.search]);
+
   return (
     <nav
       className={`sticky top-0 z-[1000] border-b border-app-border bg-white/90 backdrop-blur-md transition-transform duration-300 ${

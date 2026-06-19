@@ -2,7 +2,6 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useEffect, useState } from "react";
 import type { Product } from "../types";
-import { dummyProducts } from "../assets/assets";
 import Loading from "../components/Loading";
 import {
   ArrowLeftIcon,
@@ -12,6 +11,7 @@ import {
   ShoppingCartIcon,
 } from "lucide-react";
 import ProductCard from "../components/ProductCard";
+import api from "../config/api";
 
 const ProductPage = () => {
   const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "₹";
@@ -26,68 +26,63 @@ const ProductPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
+    const fetchProduct = async () => {
+      if (!id) return;
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+      try {
+        setLoading(true);
 
-    const foundProduct = dummyProducts.find((p) => p._id === id);
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
 
-    setProduct(foundProduct || null);
+        const { data } = await api.get(`/products/${id}`);
 
-    if (foundProduct) {
-      setRelatedProducts(
-        dummyProducts
-          .filter(
-            (p) =>
-              p.category === foundProduct.category &&
-              p._id !== foundProduct._id,
-          )
-          .slice(0, 5),
-      );
-    }
+        setProduct(data.product);
 
-    setLoading(false);
+        const relatedRes = await api.get("/products", {
+          params: {
+            category: data.product.category,
+          },
+        });
+
+        setRelatedProducts(
+          relatedRes.data.products
+            .filter((p: Product) => p.id !== data.product.id)
+            .slice(0, 5),
+        );
+      } catch (error) {
+        console.error(error);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
   }, [id]);
-
   if (loading) return <Loading />;
-
   if (!product) return null;
-
-  const cartItem = items.find((item) => item.product._id === product._id);
-
+  const cartItem = items.find((item) => item.product.id === product.id);
   const quantity = cartItem?.quantity || 0;
-
-  const discount =
-    product.originalPrice > product.price
-      ? Math.round(
-          ((product.originalPrice - product.price) / product.originalPrice) *
-            100,
-        )
-      : 0;
-
+  const discount = product.discount ?? 0;
   const categoryLabel = product.category.replace(/-/g, " ");
-
   const handlePlus = () => {
     if (cartItem) {
-      updateQuantity(product._id, cartItem.quantity + 1);
+      updateQuantity(product.id, cartItem.quantity + 1);
     } else {
       addToCart(product, 1);
     }
   };
-
   const handleMinus = () => {
     if (!cartItem) return;
 
     if (cartItem.quantity > 1) {
-      updateQuantity(product._id, cartItem.quantity - 1);
+      updateQuantity(product.id, cartItem.quantity - 1);
     } else {
-      removeFromCart(product._id);
+      removeFromCart(product.id);
     }
   };
-
   const handleAddToCart = () => {
     addToCart(product, 1);
   };
@@ -218,7 +213,7 @@ const ProductPage = () => {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {relatedProducts.map((rp) => (
-              <ProductCard key={rp._id} product={rp} />
+              <ProductCard key={rp.id} product={rp} />
             ))}
           </div>
         </section>

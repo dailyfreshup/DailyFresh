@@ -43,7 +43,7 @@ const Addresses = () => {
       zip: add.zip,
       isDefault: add.isDefault,
     });
-    setEditingId(add._id);
+    setEditingId(add.id);
     setShowForm(true);
   };
   useEffect(() => {
@@ -124,7 +124,7 @@ const Addresses = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {addresses.map((addr) => (
               <AddressCard
-                key={addr._id}
+                key={addr.id}
                 addr={addr}
                 onEditHandler={onEditHandler}
                 setAddresses={setAddresses}

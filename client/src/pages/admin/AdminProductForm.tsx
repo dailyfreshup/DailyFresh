@@ -22,13 +22,13 @@ export default function AdminProductForm() {
     category: "",
     unit: "",
     stock: "",
-    isOrganic: false,
+    isPopular: false,
   });
 
   useEffect(() => {
     const fetchData = async () => {
       if (isEdit) {
-        setFormData(() => dummyProducts.find((p) => p._id === id) as any);
+        setFormData(() => dummyProducts.find((p) => p.id === id) as any);
       }
       setLoading(false);
     };
@@ -195,17 +195,17 @@ export default function AdminProductForm() {
               </div>
               <div className="flex items-center gap-3">
                 <label
-                  htmlFor="isOrganic"
+                  htmlFor="isPopular"
                   className="text-sm font-medium text-zinc-700 cursor-pointer"
                 >
-                  Organic
+                  Popular
                 </label>
                 <input
                   type="checkbox"
-                  id="isOrganic"
-                  checked={formData.isOrganic}
+                  id="isPopular"
+                  checked={formData.isPopular}
                   onChange={(e) =>
-                    setFormData({ ...formData, isOrganic: e.target.checked })
+                    setFormData({ ...formData, isPopular: e.target.checked })
                   }
                   className="size-5 text-app-green rounded border-zinc-300 focus:ring-app-green cursor-pointer"
                 />

@@ -78,7 +78,7 @@ const AddressCard = ({
         </button>
 
         <button
-          onClick={() => handleDelete(addr._id)}
+          onClick={() => handleDelete(addr.id)}
           className="
             flex items-center gap-2
             px-3 py-2

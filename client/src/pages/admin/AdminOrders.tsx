@@ -2,10 +2,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import type { DeliveryPartner } from "../../types";
 import Loading from "../../components/Loading";
-import {
-  dummyDashboardOrdersData,
-  dummyDeliveryPartnerData,
-} from "../../assets/assets";
+import { dummyDashboardOrdersData } from "../../assets/assets";
 
 export default function AdminOrders() {
   const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
@@ -21,14 +18,8 @@ export default function AdminOrders() {
     setTimeout(() => setLoading(false), 1000);
   };
 
-  const fetchPartners = async () => {
-    setPartners(dummyDeliveryPartnerData as any);
-    setTimeout(() => setLoading(false), 1000);
-  };
-
   useEffect(() => {
     fetchOrders();
-    fetchPartners();
   }, []);
 
   const handleStatusChange = async (id: string, newStatus: string) => {
@@ -81,12 +72,12 @@ export default function AdminOrders() {
               ) : (
                 orders.map((order: any) => (
                   <tr
-                    key={order._id}
+                    key={order.id}
                     className="hover:bg-zinc-50/50 transition-colors"
                   >
                     <td className="px-6 py-4">
                       <p className="font-semibold text-zinc-900">
-                        #{order._id.slice(-6)}
+                        #{order.id.slice(-6)}
                       </p>
                       <p className="text-xs text-zinc-500">
                         {new Date(order.createdAt).toLocaleString()}
@@ -99,6 +90,9 @@ export default function AdminOrders() {
                       <p className="text-xs text-zinc-500">
                         {order.user?.email || "No email"}
                       </p>
+                      <p className="text-xs text-zinc-500">
+                        {order.user?.phone || "No phone"}
+                      </p>
                     </td>
                     <td className="px-6 py-4 font-medium">
                       {currency}
@@ -109,7 +103,7 @@ export default function AdminOrders() {
                       <select
                         value={order.status}
                         onChange={(e) =>
-                          handleStatusChange(order._id, e.target.value)
+                          handleStatusChange(order.id, e.target.value)
                         }
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold border-r-8 border-transparent outline-none cursor-pointer leading-tight ${statusColors[order.status] || "bg-zinc-100 text-zinc-800"}`}
                       >
@@ -148,15 +142,15 @@ export default function AdminOrders() {
                 <div className="space-y-2 mb-5 max-h-60 overflow-y-auto">
                   {partners.map((p) => (
                     <label
-                      key={p._id}
-                      className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${selectedPartner === p._id ? "border-app-green bg-app-green/5" : "border-app-border hover:bg-app-cream"}`}
+                      key={p.id}
+                      className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${selectedPartner === p.id ? "border-app-green bg-app-green/5" : "border-app-border hover:bg-app-cream"}`}
                     >
                       <input
                         type="radio"
                         name="partner"
-                        value={p._id}
-                        checked={selectedPartner === p._id}
-                        onChange={() => setSelectedPartner(p._id)}
+                        value={p.id}
+                        checked={selectedPartner === p.id}
+                        onChange={() => setSelectedPartner(p.id)}
                         className="text-app-green"
                       />
                       <div className="size-8 rounded-full bg-app-green flex-center">

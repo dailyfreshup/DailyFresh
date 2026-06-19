@@ -111,7 +111,7 @@ const CartSidebar = () => {
           ) : (
             items.map((item) => (
               <div
-                key={item.product._id}
+                key={item.product.id}
                 className="bg-white border border-app-border rounded-xl p-3 hover:shadow-md transition-all"
               >
                 <div className="flex gap-3">
@@ -135,7 +135,7 @@ const CartSidebar = () => {
                       </div>
 
                       <button
-                        onClick={() => removeFromCart(item.product._id)}
+                        onClick={() => removeFromCart(item.product.id)}
                         className="p-1.5 rounded-md hover:bg-red-50 text-app-text-light hover:text-red-500 transition-colors"
                       >
                         <Trash2Icon className="size-3.5" />
@@ -148,11 +148,11 @@ const CartSidebar = () => {
                           onClick={() => {
                             if (item.quantity > 1) {
                               updateQuantity(
-                                item.product._id,
+                                item.product.id,
                                 item.quantity - 1,
                               );
                             } else {
-                              removeFromCart(item.product._id);
+                              removeFromCart(item.product.id);
                             }
                           }}
                           className="size-7 rounded-md bg-white flex items-center justify-center hover:bg-app-orange hover:text-white transition-colors"
@@ -166,7 +166,7 @@ const CartSidebar = () => {
 
                         <button
                           onClick={() =>
-                            updateQuantity(item.product._id, item.quantity + 1)
+                            updateQuantity(item.product.id, item.quantity + 1)
                           }
                           className="size-7 rounded-md bg-white flex items-center justify-center hover:bg-app-orange hover:text-white transition-colors"
                         >

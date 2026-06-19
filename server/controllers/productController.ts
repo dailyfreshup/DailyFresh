@@ -3,21 +3,33 @@ import { prisma } from "../config/prisma.js";
 
 // GET /api/products
 export const getProducts = async (req: Request, res: Response) => {
-  const { category, search } = req.query;
+  const { category, search, limit, popular } = req.query;
   const where: any = {};
-  if (category && category !== "all") where.category = category as string;
-  if (search) where.name = { contains: search as string, mode: "insensitive" };
-  const products = await prisma.product.findMany({ where });
-  const productWithDiscount = products.map((p: any) => {
-    const discount =
+  if (category && category !== "all") {
+    where.category = category as string;
+  }
+  if (search) {
+    where.name = {
+      contains: search as string,
+      mode: "insensitive",
+    };
+  }
+  if (popular === "true") {
+    where.isPopular = true;
+  }
+  const products = await prisma.product.findMany({
+    where,
+    take: limit ? Number(limit) : undefined,
+  });
+  const productWithDiscount = products.map((p) => ({
+    ...p,
+    discount:
       p.originalPrice && p.price
         ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)
-        : 0;
-    return { ...p, discount };
-  });
+        : 0,
+  }));
   res.json({ products: productWithDiscount });
 };
-
 // GET /api/products/:id
 export const getProduct = async (req: Request, res: Response) => {
   const product = await prisma.product.findUnique({

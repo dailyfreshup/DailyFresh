@@ -1,53 +1,91 @@
 import { useEffect, useState } from "react";
-import { dummyProducts } from "../assets/assets";
 import type { Product } from "../types";
-import { Link, useSearchParams } from "react-router-dom";
-import { Home, Search } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Search } from "lucide-react";
 import Loading from "../components/Loading";
 import ProductCard from "../components/ProductCard";
 import MobileSearch from "../components/MobileSearch";
+import toast from "react-hot-toast";
+import api from "../config/api";
 
 const SearchResults = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const query = searchParams.get("q") || "";
 
   useEffect(() => {
-    if (!query) return;
+    const search = query.trim();
+
+    if (!search) {
+      setProducts([]);
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
 
-    const filtered = dummyProducts.filter((p: Product) =>
-      p.name.toLowerCase().includes(query.toLowerCase()),
-    );
-
-    setProducts(filtered);
-    setLoading(false);
+    api
+      .get("/products", {
+        params: {
+          search,
+        },
+      })
+      .then(({ data }) => {
+        setProducts(data.products);
+      })
+      .catch((error: any) => {
+        toast.error(error.response?.data?.message || error.message);
+        setProducts([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [query]);
 
   return (
     <div className="min-h-screen bg-app-cream">
-      <MobileSearch/>
+      <MobileSearch />
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <nav className="flex items-center gap-2 text-sm text-app-text-light mb-6">
-          <Link to="/" className="hover:text-app-green transition-colors">
-            <Home className="size-4" />
-          </Link>
-          <span>/</span>
-          <span className="text-app-green font-medium">Search Results</span>
-        </nav>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-app-green mb-1">
+              {query ? `Results for "${query}"` : "Search Products"}
+            </h1>
 
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-app-green mb-1">
-            Results for "{query}"
-          </h1>
-          <p className="text-sm text-app-text-light">
-            {loading ? "Searching..." : `${products.length} items found`}
-          </p>
+            <p className="text-sm text-app-text-light">
+              {!query
+                ? "Search for products above."
+                : loading
+                  ? "Searching..."
+                  : `${products.length} item${products.length !== 1 ? "s" : ""} found`}
+            </p>
+          </div>
+          {query && (
+            <Link
+              to="/products"
+              className="rounded-lg border border-app-border bg-white px-4 py-2 text-sm font-medium text-app-green transition hover:bg-app-green hover:text-white"
+            >
+              Clear Search
+            </Link>
+          )}
         </div>
 
-        {loading ? (
+        {!query ? (
+          <div className="text-center py-20">
+            <Search className="size-16 text-app-border mx-auto mb-4" />
+
+            <h2 className="text-xl font-semibold text-app-green mb-2">
+              Start Searching
+            </h2>
+
+            <p className="text-sm text-app-text-light">
+              Enter a product name in the search box above.
+            </p>
+          </div>
+        ) : loading ? (
           <Loading />
         ) : products.length === 0 ? (
           <div className="text-center py-20">
@@ -58,7 +96,7 @@ const SearchResults = () => {
             </h2>
 
             <p className="text-sm text-app-text-light mb-6 max-w-md mx-auto">
-              We couldn't find any "{query}".
+              We couldn't find any products matching "{query}".
             </p>
 
             <Link
@@ -84,7 +122,7 @@ const SearchResults = () => {
           >
             {products.map((product) => (
               <div
-                key={product._id}
+                key={product.id}
                 className="transition-all duration-300 hover:-translate-y-1"
               >
                 <ProductCard product={product} />
