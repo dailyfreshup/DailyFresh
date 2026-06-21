@@ -1,3 +1,5 @@
+export type OrderStatus = "Placed" | "Confirmed" | "Delivered" | "Cancelled";
+
 export interface User {
   id: string;
   name: string;
@@ -39,8 +41,6 @@ export interface Product {
   unit: string;
   stock: number;
   isPopular: boolean;
-  rating: number;
-  reviewCount: number;
   discount: number;
   createdAt: string;
 }
@@ -59,17 +59,6 @@ export interface OrderItem {
   unit: string;
 }
 
-export interface DeliveryPartner {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  avatar: string;
-  vehicleType: "bike" | "scooter" | "car";
-  isActive: boolean;
-  createdAt: string;
-}
-
 export interface Order {
   id: string;
   user: string | { id: string; name: string; email: string; phone?: string };
@@ -78,13 +67,14 @@ export interface Order {
   paymentMethod: string;
   subtotal: number;
   deliveryFee: number;
-  tax: number;
   platformFee: number;
   total: number;
-  status: string;
-  statusHistory: { status: string; timestamp: string; note: string }[];
-  deliveryPartner: DeliveryPartner | null;
-  deliveryOtp: string;
+  status: OrderStatus;
+  statusHistory: {
+    status: OrderStatus;
+    timestamp: string;
+    note: string;
+  }[];
   isPaid: boolean;
   createdAt: string;
 }

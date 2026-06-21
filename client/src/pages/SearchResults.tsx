@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Product } from "../types";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Search } from "lucide-react";
 import Loading from "../components/Loading";
 import ProductCard from "../components/ProductCard";
@@ -13,7 +13,6 @@ const SearchResults = () => {
   const [loading, setLoading] = useState(false);
 
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const query = searchParams.get("q") || "";
 
   useEffect(() => {

@@ -17,7 +17,7 @@ export const getAdminStats = async (req: Request, res: Response) => {
         where: { NOT: [{ paymentMethod: "card", isPaid: false }] },
         orderBy: { createdAt: "desc" },
         take: 8,
-        include: { user: { select: { name: true, email: true } } },
+        include: { user: { select: { name: true, email: true, phone: true } } },
       }),
     ]);
   res.json({

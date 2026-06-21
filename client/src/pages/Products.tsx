@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
-import { categoriesData, dummyProducts } from "../assets/assets";
+import { categoriesData } from "../assets/assets";
 import type { Product } from "../types";
 
 import { SlidersHorizontal, XIcon } from "lucide-react";

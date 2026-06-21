@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { dummyDashboardOrdersData, statusColors } from "../assets/assets";
+import { statusColors } from "../assets/assets";
 import type { Order } from "../types";
 import Loading from "../components/Loading";
 import { ArrowLeftIcon, MapPinIcon } from "lucide-react";
-import LiveMap from "../components/OrderTracking/LiveMap";
+import DeliveryMap from "../components/OrderTracking/DeliveryMap";
 import OrderTimeLine from "../components/OrderTracking/OrderTimeLine";
+import api from "../config/api";
 
 const OrderTracking = () => {
   const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "₹";
@@ -15,19 +16,20 @@ const OrderTracking = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // const [liveLocation, setLiveLocation] = useState<{
-  //   lat: number;
-  //   lng: number;
-  // } | null>(null);
-  const [liveLocation] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
-
   useEffect(() => {
-    setOrder(dummyDashboardOrdersData.find((o) => o.id === id) as any);
-    setLoading(false);
-  }, [id]);
+    const fetchOrder = async () => {
+      try {
+        const { data } = await api.get(`/orders/${id}`);
+        setOrder(data.order);
+      } catch (error) {
+        navigate("/orders");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrder();
+  }, [id, navigate]);
 
   if (loading) return <Loading />;
   if (!order) return null;
@@ -73,7 +75,10 @@ const OrderTracking = () => {
             <OrderTimeLine order={order} />
 
             <div className="hidden lg:block">
-              <LiveMap order={order} liveLocation={liveLocation} />
+              <DeliveryMap
+                lat={order.shippingAddress.lat}
+                lng={order.shippingAddress.lng}
+              />
             </div>
           </div>
 
@@ -95,7 +100,10 @@ const OrderTracking = () => {
             </div>
 
             <div className="lg:hidden">
-              <LiveMap order={order} liveLocation={liveLocation} />
+              <DeliveryMap
+                lat={order.shippingAddress.lat}
+                lng={order.shippingAddress.lng}
+              />
             </div>
 
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-app-border">
@@ -175,8 +183,6 @@ const OrderTracking = () => {
           </div>
         </div>
       </div>
-
-      {liveLocation && null}
     </div>
   );
 };
