@@ -58,13 +58,39 @@ export default function AdminProductForm() {
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setSaving(true);
+    if (imageFile && imageFile.size > 5 * 1024 * 1024) {
+      toast.error("Please upload an image smaller than 5 MB");
+      setSaving(false);
+      return;
+    }
     try {
       let finalImageUrl = formData.image;
       if (imageFile) {
         const formDataUpload = new FormData();
-        formDataUpload.append("image", imageFile);
-        const { data } = await api.post("/upload", formDataUpload);
-        finalImageUrl = data.url;
+
+        formDataUpload.append("file", imageFile);
+        formDataUpload.append(
+          "upload_preset",
+          import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
+        );
+
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/${
+            import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+          }/image/upload`,
+          {
+            method: "POST",
+            body: formDataUpload,
+          },
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error?.message || "Image upload failed");
+        }
+
+        finalImageUrl = data.secure_url;
       }
       if (!finalImageUrl) {
         toast.error("Upload description image");
@@ -89,7 +115,11 @@ export default function AdminProductForm() {
       }
       navigate("/admin/products");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to create product");
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to create product",
+      );
     } finally {
       setSaving(false);
     }
@@ -213,6 +243,10 @@ export default function AdminProductForm() {
                 <label className="block text-sm font-medium text-zinc-700 mb-2">
                   Product Image
                 </label>
+                <p className="mt-2 text-xs text-zinc-500">
+                  Supported formats: JPG, PNG, WEBP • Maximum file size:{" "}
+                  <strong>5 MB</strong>
+                </p>
                 <div className="flex items-center gap-4">
                   {(imageFile || formData.image) && (
                     <div className="size-16 rounded-lg border border-zinc-200 overflow-hidden shrink-0 bg-app-cream">
