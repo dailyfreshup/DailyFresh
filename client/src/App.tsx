@@ -8,7 +8,7 @@ import ProductPage from "./pages/ProductPage";
 import SearchResults from "./pages/SearchResults";
 import Checkout from "./pages/Checkout";
 import MyOrders from "./pages/MyOrders";
-import Contact from "./pages/Contact";
+// import Contact from "./pages/Contact";
 import OrderTracking from "./pages/OrderTracking";
 import Addresses from "./pages/Addresses";
 import ProtectedRoute from "./components/ProtectedRoute";
