@@ -18,25 +18,58 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [showOtp, setShowOtp] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [countdown, setCountdown] = useState(60);
+  const [canResend, setCanResend] = useState(false);
 
-  const { login, register } = useAuth();
+  const { login, sendOTP, verifyOTP } = useAuth();
 
-  const handleSubmit = async (e: React.SubmitEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       if (isLogin) {
         await login(email, password);
       } else {
-        await register(name, email, phone, password);
+        if (!showOtp) {
+          await sendOTP(name, email, phone);
+          toast.success("OTP sent to your email");
+          setShowOtp(true);
+          setCountdown(60);
+          setCanResend(false);
+          setShowOtp(true);
+        } else {
+          if (otp.length !== 6) {
+            toast.error("Please enter a valid 6-digit OTP");
+            return;
+          }
+          await verifyOTP(name, email, phone, password, otp);
+        }
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || error?.message);
+      toast.error(error.response?.data?.message || error.message);
     } finally {
       setLoading(false);
     }
   };
+
+  React.useEffect(() => {
+    if (!showOtp) return;
+
+    if (countdown <= 0) {
+      setCanResend(true);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [countdown, showOtp]);
 
   return (
     <div className="h-screen overflow-hidden flex bg-[#f7f7f5]">
@@ -145,6 +178,7 @@ const Login = () => {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your full name"
                     required
+                    disabled={showOtp}
                     className="w-full h-11 sm:h-12 pl-12 pr-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-green-700 outline-none transition-all"
                   />
                 </div>
@@ -165,6 +199,7 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   required
+                  disabled={!isLogin && showOtp}
                   className="w-full h-11 sm:h-12 pl-12 pr-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-green-700 outline-none transition-all"
                 />
               </div>
@@ -192,6 +227,7 @@ const Login = () => {
                     maxLength={10}
                     pattern="[0-9]{10}"
                     inputMode="numeric"
+                    disabled={showOtp}
                     className="w-full h-11 sm:h-12 pl-12 pr-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-green-700 outline-none transition-all"
                   />
                 </div>
@@ -222,22 +258,69 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
+                  disabled={!isLogin && showOtp}
                   required
                   className="w-full h-11 sm:h-12 pl-12 pr-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-green-700 outline-none transition-all"
                 />
               </div>
             </div>
+            {!isLogin && showOtp && (
+              <div>
+                <label className="text-sm font-medium text-gray-700">OTP</label>
+
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  value={otp}
+                  onChange={(e) =>
+                    setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                  }
+                  maxLength={6}
+                  placeholder="Enter 6-digit OTP"
+                  required
+                  className="mt-2 w-full h-11 sm:h-12 rounded-xl border border-gray-200 bg-gray-50 px-4 outline-none focus:bg-white focus:border-green-700"
+                />
+              </div>
+            )}
+
+            {!isLogin && showOtp && (
+              <div className="text-right">
+                <button
+                  type="button"
+                  disabled={!canResend}
+                  onClick={async () => {
+                    try {
+                      await sendOTP(name, email, phone);
+                      toast.success("OTP resent");
+
+                      setCountdown(60);
+                      setCanResend(false);
+                    } catch (err: any) {
+                      toast.error(err.response?.data?.message || err.message);
+                    }
+                  }}
+                  className={`text-sm ${
+                    canResend
+                      ? "text-green-700 hover:text-green-900"
+                      : "text-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  {canResend ? "Resend OTP" : `Resend in ${countdown}s`}
+                </button>
+              </div>
+            )}
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (!isLogin && showOtp && otp.length !== 6)}
               className="w-full h-11 sm:h-12 rounded-xl bg-green-950 hover:bg-green-900 text-white font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-60"
             >
               {loading ? (
                 <Loader2Icon className="animate-spin size-5" />
               ) : (
                 <>
-                  {isLogin ? "Sign In" : "Create Account"}
+                  {isLogin ? "Sign In" : showOtp ? "Verify OTP" : "Send OTP"}
                   <ArrowRightIcon className="size-4" />
                 </>
               )}
@@ -249,7 +332,17 @@ const Login = () => {
             {isLogin ? "Don’t have an account?" : "Already have an account?"}
 
             <button
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setName("");
+                setEmail("");
+                setPhone("");
+                setPassword("");
+                setOtp("");
+                setCanResend(false);
+                setCountdown(60);
+                setShowOtp(false);
+              }}
               className="ml-2 text-green-800 font-semibold hover:text-green-950 transition-colors"
             >
               {isLogin ? "Create one" : "Sign in"}

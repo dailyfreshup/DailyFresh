@@ -387,7 +387,8 @@ export const ModelName = {
   User: 'User',
   Address: 'Address',
   Product: 'Product',
-  Order: 'Order'
+  Order: 'Order',
+  EmailOTP: 'EmailOTP'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -403,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "address" | "product" | "order"
+    modelProps: "user" | "address" | "product" | "order" | "emailOTP"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -703,6 +704,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    EmailOTP: {
+      payload: Prisma.$EmailOTPPayload<ExtArgs>
+      fields: Prisma.EmailOTPFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmailOTPFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailOTPPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmailOTPFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailOTPPayload>
+        }
+        findFirst: {
+          args: Prisma.EmailOTPFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailOTPPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmailOTPFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailOTPPayload>
+        }
+        findMany: {
+          args: Prisma.EmailOTPFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailOTPPayload>[]
+        }
+        create: {
+          args: Prisma.EmailOTPCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailOTPPayload>
+        }
+        createMany: {
+          args: Prisma.EmailOTPCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmailOTPCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailOTPPayload>[]
+        }
+        delete: {
+          args: Prisma.EmailOTPDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailOTPPayload>
+        }
+        update: {
+          args: Prisma.EmailOTPUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailOTPPayload>
+        }
+        deleteMany: {
+          args: Prisma.EmailOTPDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmailOTPUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmailOTPUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailOTPPayload>[]
+        }
+        upsert: {
+          args: Prisma.EmailOTPUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmailOTPPayload>
+        }
+        aggregate: {
+          args: Prisma.EmailOTPAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmailOTP>
+        }
+        groupBy: {
+          args: Prisma.EmailOTPGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmailOTPGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmailOTPCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmailOTPCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -810,6 +885,18 @@ export const OrderScalarFieldEnum = {
 } as const
 
 export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const EmailOTPScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  otp: 'otp',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmailOTPScalarFieldEnum = (typeof EmailOTPScalarFieldEnum)[keyof typeof EmailOTPScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1048,6 +1135,7 @@ export type GlobalOmitConfig = {
   address?: Prisma.AddressOmit
   product?: Prisma.ProductOmit
   order?: Prisma.OrderOmit
+  emailOTP?: Prisma.EmailOTPOmit
 }
 
 /* Types for Logging */

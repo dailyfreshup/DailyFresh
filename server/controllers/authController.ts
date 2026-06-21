@@ -2,6 +2,7 @@ import { Request, response, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { inngest } from "../inngest/index.js";
 
 // Generate JWT
 const generateToken = (id: string) => {
@@ -21,31 +22,144 @@ const getAdminStatus = (email: string | null | undefined): boolean => {
   return adminEmails.includes(email.toLocaleLowerCase());
 };
 
-// Register
+// send otp
 // POST /api/auth/register
-export const register = async (req: Request, res: Response) => {
-  const { name, email, phone, password } = req.body;
-  if (!name || !email || !phone || !password)
+export const sendRegisterOTP = async (req: Request, res: Response) => {
+  const { name, email, phone } = req.body;
+
+  if (!name || !email || !phone) {
     return res.status(400).json({ message: "Provide all details" });
+  }
+
+  const normalizedEmail = email.toLowerCase();
+
   const existingEmail = await prisma.user.findUnique({
-    where: { email: email.toLowerCase() },
+    where: { email: normalizedEmail },
   });
-  if (existingEmail)
-    return res.status(400).json({ message: "Email already exist" });
-  const existingNumber = await prisma.user.findUnique({
-    where: { phone: phone },
+
+  if (existingEmail) {
+    return res.status(400).json({ message: "Email already exists" });
+  }
+
+  const existingPhone = await prisma.user.findUnique({
+    where: { phone },
   });
-  if (existingNumber)
-    return res.status(400).json({ message: "Phone number already exist" });
+
+  if (existingPhone) {
+    return res.status(400).json({ message: "Phone number already exists" });
+  }
+
+  // Check existing OTP
+  const existingOTP = await prisma.emailOTP.findUnique({
+    where: { email: normalizedEmail },
+  });
+
+  // Prevent resend within 60 seconds
+  if (existingOTP) {
+    const secondsPassed = Math.floor(
+      (Date.now() - existingOTP.createdAt.getTime()) / 1000,
+    );
+
+    if (secondsPassed < 60) {
+      return res.status(429).json({
+        message: `Please wait ${60 - secondsPassed}s before requesting another OTP.`,
+      });
+    }
+  }
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  await prisma.emailOTP.upsert({
+    where: { email: normalizedEmail },
+    update: {
+      otp,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      createdAt: new Date(), // reset resend timer
+    },
+    create: {
+      email: normalizedEmail,
+      otp,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+    },
+  });
+
+  await inngest.send({
+    name: "otp/send",
+    data: {
+      email: normalizedEmail,
+      name,
+      otp,
+    },
+  });
+
+  return res.status(200).json({
+    success: true,
+  });
+};
+
+// Verify OTP and register
+//
+export const verifyRegisterOTP = async (req: Request, res: Response) => {
+  const { name, email, phone, password, otp } = req.body;
+
+  if (!otp) {
+    return res.status(400).json({
+      message: "OTP is required",
+    });
+  }
+
+  const otpData = await prisma.emailOTP.findUnique({
+    where: {
+      email: email.toLowerCase(),
+    },
+  });
+
+  if (!otpData) {
+    return res.status(400).json({
+      message: "OTP not found",
+    });
+  }
+
+  if (otpData.otp !== otp) {
+    return res.status(400).json({
+      message: "Invalid OTP",
+    });
+  }
+
+  if (otpData.expiresAt < new Date()) {
+    return res.status(400).json({
+      message: "OTP expired",
+    });
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
+
   const user = await prisma.user.create({
-    data: { name, email: email.toLowerCase(),phone:phone, password: hashedPassword },
+    data: {
+      name,
+      email: email.toLowerCase(),
+      phone,
+      password: hashedPassword,
+    },
   });
+
+  await prisma.emailOTP.delete({
+    where: {
+      email: email.toLowerCase(),
+    },
+  });
+
   const token = generateToken(user.id);
+
   const userData: any = { ...user };
   delete userData.password;
-  userData.isAdmin = getAdminStatus(userData.email);
-  res.status(202).json({ user: userData, token });
+
+  userData.isAdmin = getAdminStatus(user.email);
+
+  res.status(201).json({
+    user: userData,
+    token,
+  });
 };
 
 // Login
@@ -56,7 +170,8 @@ export const login = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Provide all details" });
 
   const user = await prisma.user.findUnique({
-    where: { email: email.toLowerCase()}, include: { addresses: true },
+    where: { email: email.toLowerCase() },
+    include: { addresses: true },
   });
   if (!user) return res.status(401).json({ message: "User doesn't exist" });
   const isMatch = await bcrypt.compare(password, user.password);

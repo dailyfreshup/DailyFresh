@@ -283,4 +283,88 @@ const sendAnnouncement = inngest.createFunction(
   },
 );
 
-export const functions = [checkLowStock, sendAnnouncement];
+// OTP
+export const sendEmailOTP = inngest.createFunction(
+  {
+    id: "send-email-otp",
+    name: "Send Email OTP",
+    triggers: [
+      {
+        event: "otp/send",
+      },
+    ],
+  },
+  async ({ event, step }) => {
+    const { email, name, otp } = event.data;
+
+    await step.run("send-otp-email", async () => {
+      await sendEmail({
+        to: email,
+        subject: "Verify your DailyFresh account",
+        body: `
+        <div style="
+            max-width:600px;
+            margin:auto;
+            font-family:Segoe UI,Arial,sans-serif;
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+            overflow:hidden;
+        ">
+
+            <div style="
+                background:#166534;
+                color:white;
+                padding:25px;
+                text-align:center;
+            ">
+                <h2 style="margin:0;">
+                    DailyFresh
+                </h2>
+            </div>
+
+            <div style="padding:30px">
+
+                <h3>Hello ${name},</h3>
+
+                <p>
+                    Use the verification code below to verify your account.
+                </p>
+
+                <div style="
+                    font-size:34px;
+                    font-weight:bold;
+                    text-align:center;
+                    letter-spacing:8px;
+                    margin:30px 0;
+                    color:#166534;
+                ">
+                    ${otp}
+                </div>
+
+                <p>
+                    This OTP will expire in
+                    <strong>5 minutes</strong>.
+                </p>
+
+                <p style="
+                    color:#6b7280;
+                    font-size:13px;
+                ">
+                    If you didn't request this, you can ignore this email.
+                </p>
+
+            </div>
+
+        </div>
+        `,
+      });
+    });
+
+    return {
+      success: true,
+      email,
+    };
+  },
+);
+
+export const functions = [checkLowStock, sendAnnouncement, sendEmailOTP];
