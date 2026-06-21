@@ -79,12 +79,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const sendOTP = async (name: string, email: string, phone: string) => {
-    const { data } = await api.post("/auth/send-otp", {
+    await api.post("/auth/send-otp", {
       name,
       email,
       phone,
     });
-
   };
 
   const verifyOTP = async (
