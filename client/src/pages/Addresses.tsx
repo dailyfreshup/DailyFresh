@@ -14,6 +14,7 @@ const Addresses = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     label: "",
     address: "",
@@ -67,8 +68,10 @@ const Addresses = () => {
       attempt();
     });
   };
-  const handleSubmit = async (e: React.SubmitEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
+    setSaving(true);
     try {
       const coords = await getLocation();
       const payload = { ...form, ...coords };
@@ -86,6 +89,8 @@ const Addresses = () => {
       resetForm();
     } catch (error: any) {
       toast.error(error.response?.data?.message || error.message || "Failed");
+    } finally {
+      setSaving(false);
     }
   };
   const onEditHandler = (add: Address) => {
@@ -157,6 +162,7 @@ const Addresses = () => {
             form={form}
             setForm={setForm}
             editingId={editingId}
+            saving={saving}
           />
         )}
 

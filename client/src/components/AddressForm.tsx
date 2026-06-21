@@ -1,4 +1,4 @@
-import { XIcon } from "lucide-react";
+import { Loader2, XIcon } from "lucide-react";
 
 const AddressForm = ({
   resetForm,
@@ -6,13 +6,14 @@ const AddressForm = ({
   form,
   setForm,
   editingId,
+  saving,
 }: any) => {
   return (
     <>
       <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50" />
 
       <div
-        onClick={resetForm}
+        onClick={!saving ? resetForm : undefined}
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
         <form
@@ -27,8 +28,9 @@ const AddressForm = ({
 
             <button
               type="button"
-              onClick={resetForm}
-              className="p-2 hover:bg-app-cream rounded-lg transition-colors"
+              onClick={!saving ? resetForm : undefined}
+              disabled={saving}
+              className="p-2 hover:bg-app-cream rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <XIcon className="size-5" />
             </button>
@@ -44,7 +46,8 @@ const AddressForm = ({
                 type="text"
                 placeholder="Home, Work, etc."
                 required
-                className="w-full px-4 py-2.5 text-sm rounded-xl border border-app-border focus:border-app-green outline-none"
+                disabled={saving}
+                className="w-full px-4 py-2.5 text-sm rounded-xl border border-app-border focus:border-app-green outline-none disabled:bg-gray-100"
                 value={form.label}
                 onChange={(e) => setForm({ ...form, label: e.target.value })}
               />
@@ -58,7 +61,8 @@ const AddressForm = ({
               <input
                 type="text"
                 required
-                className="w-full px-4 py-2.5 text-sm rounded-xl border border-app-border focus:border-app-green outline-none"
+                disabled={saving}
+                className="w-full px-4 py-2.5 text-sm rounded-xl border border-app-border focus:border-app-green outline-none disabled:bg-gray-100"
                 value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
               />
@@ -73,7 +77,8 @@ const AddressForm = ({
                 <input
                   type="text"
                   required
-                  className="w-full px-4 py-2.5 text-sm rounded-xl border border-app-border focus:border-app-green outline-none"
+                  disabled={saving}
+                  className="w-full px-4 py-2.5 text-sm rounded-xl border border-app-border focus:border-app-green outline-none disabled:bg-gray-100"
                   value={form.city}
                   onChange={(e) => setForm({ ...form, city: e.target.value })}
                 />
@@ -87,7 +92,8 @@ const AddressForm = ({
                 <input
                   type="text"
                   required
-                  className="w-full px-4 py-2.5 text-sm rounded-xl border border-app-border focus:border-app-green outline-none"
+                  disabled={saving}
+                  className="w-full px-4 py-2.5 text-sm rounded-xl border border-app-border focus:border-app-green outline-none disabled:bg-gray-100"
                   value={form.state}
                   onChange={(e) => setForm({ ...form, state: e.target.value })}
                 />
@@ -103,7 +109,8 @@ const AddressForm = ({
                 <input
                   type="text"
                   required
-                  className="w-full px-4 py-2.5 text-sm rounded-xl border border-app-border focus:border-app-green outline-none"
+                  disabled={saving}
+                  className="w-full px-4 py-2.5 text-sm rounded-xl border border-app-border focus:border-app-green outline-none disabled:bg-gray-100"
                   value={form.zip}
                   onChange={(e) => setForm({ ...form, zip: e.target.value })}
                 />
@@ -113,6 +120,7 @@ const AddressForm = ({
                 <label className="flex items-center gap-3 cursor-pointer w-full rounded-xl border border-app-border px-3 py-2 hover:bg-app-cream/60 transition-colors">
                   <input
                     type="checkbox"
+                    disabled={saving}
                     checked={form.isDefault}
                     onChange={(e) =>
                       setForm({ ...form, isDefault: e.target.checked })
@@ -135,9 +143,24 @@ const AddressForm = ({
 
           <button
             type="submit"
-            className="mt-6 w-full py-3 bg-app-green text-white font-semibold rounded-xl hover:bg-app-green-light transition-colors"
+            disabled={saving}
+            className="
+              mt-6 w-full py-3 bg-app-green text-white font-semibold rounded-xl
+              hover:bg-app-green-light transition-colors
+              disabled:opacity-70 disabled:cursor-not-allowed
+              flex items-center justify-center gap-2
+            "
           >
-            {editingId ? "Update Address" : "Save Address"}
+            {saving ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                {editingId ? "Updating..." : "Saving..."}
+              </>
+            ) : editingId ? (
+              "Update Address"
+            ) : (
+              "Save Address"
+            )}
           </button>
         </form>
       </div>

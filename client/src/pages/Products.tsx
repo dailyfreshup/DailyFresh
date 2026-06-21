@@ -106,7 +106,7 @@ const Products = () => {
                 onClick={clearFilters}
                 className="rounded-lg border border-app-border bg-white px-4 py-2 text-sm font-medium text-app-green transition hover:bg-app-green hover:text-white"
               >
-                Clear Filter
+                Clear
               </button>
             )}
 
