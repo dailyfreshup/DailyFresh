@@ -90,9 +90,6 @@ export const heroSectionData = {
   ],
 };
 
-export const deliveryPartnerLoginImage =
-  "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=200";
-
 export const footerData = {
   brand: {
     name: "DailyFresh",
@@ -112,7 +109,7 @@ export const footerData = {
         { label: "All Products", to: "/products" },
         { label: "About", to: "/about" },
         { label: "Track Order", to: "/orders" },
-        { label: "Contact", to: "/contact" },
+        // { label: "Contact", to: "/contact" },
       ],
     },
     {
@@ -127,9 +124,9 @@ export const footerData = {
   ],
 
   contact: [
-    { icon: MapPinIcon, text: "123 Green Valley Rd, Portland" },
-    { icon: PhoneIcon, text: "+91 93366 51494" },
-    { icon: MailIcon, text: "akashrai@gmail.com" },
+    { icon: MapPinIcon, text: "123 Green Valley Rd, Ghazipur" },
+    { icon: PhoneIcon, text: "+91 73487 02447" },
+    { icon: MailIcon, text: "akashraiaki29@gmail.com" },
   ],
 
   bottom: {
