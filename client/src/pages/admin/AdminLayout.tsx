@@ -6,6 +6,7 @@ import {
   LogOutIcon,
   BarChart3Icon,
   ShieldIcon,
+  Megaphone,
 } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import { useAuth } from "../../context/authContext";
@@ -19,6 +20,7 @@ export default function AdminLayout() {
     { to: "/admin/products/new", label: "Add Product", icon: PlusIcon },
     { to: "/admin/products", label: "Products", icon: PackageSearchIcon },
     { to: "/admin/orders", label: "Orders", icon: ShoppingBagIcon },
+    { to: "/admin/announcement", label: "Announcement", icon: Megaphone },
     { to: "/", label: "Exit", icon: LogOutIcon },
   ];
   if (loading) {

@@ -134,4 +134,153 @@ const checkLowStock = inngest.createFunction(
   },
 );
 
-export const functions = [checkLowStock];
+// Announcement
+const sendAnnouncement = inngest.createFunction(
+  {
+    id: "send-announcement",
+    name: "Send Announcement Email",
+    triggers: [
+      {
+        event: "announcement/send",
+      },
+    ],
+  },
+  async ({ event, step }) => {
+    const { subject, message } = event.data;
+    console.log("ANNOUNCEMENT FUNCTION TRIGGERED");
+
+    // Fetch all users
+    const users = await step.run("fetch-users", async () => {
+      return prisma.user.findMany({
+        select: {
+          email: true,
+          name: true,
+        },
+      });
+    });
+    if (users.length === 0) {
+      console.log("No users found.");
+      return {
+        sent: 0,
+      };
+    }
+
+    const result = await step.run("send-emails", async () => {
+      const CHUNK_SIZE = 10;
+
+      let successCount = 0;
+      let failedCount = 0;
+
+      for (let i = 0; i < users.length; i += CHUNK_SIZE) {
+        const chunk = users.slice(i, i + CHUNK_SIZE);
+
+        console.log(
+          `Sending batch ${Math.floor(i / CHUNK_SIZE) + 1} (${chunk.length} emails)...`,
+        );
+
+        const results = await Promise.allSettled(
+          chunk.map((user) =>
+            sendEmail({
+              to: user.email,
+              subject,
+              body: `
+              <div style="
+                  max-width:650px;
+                  margin:auto;
+                  font-family:Segoe UI,Arial,sans-serif;
+                  background:#ffffff;
+                  border:1px solid #e5e7eb;
+                  border-radius:12px;
+                  overflow:hidden;
+              ">
+
+                  <div style="
+                      background:#16a34a;
+                      padding:24px;
+                      text-align:center;
+                  ">
+                      <h2 style="color:white;margin:0;">
+                          📢 DailyFresh Announcement
+                      </h2>
+                  </div>
+
+                  <div style="padding:30px;">
+
+                      <p>Hello <strong>${user.name || "Customer"}</strong>,</p>
+
+                      <h3 style="
+                          color:#111827;
+                          margin:20px 0 10px;
+                      ">
+                          ${subject}
+                      </h3>
+
+                      <div style="
+                          font-size:16px;
+                          line-height:1.8;
+                          color:#374151;
+                          white-space:pre-line;
+                      ">
+                          ${message}
+                      </div>
+
+                      <div style="
+                          margin-top:35px;
+                          padding:18px;
+                          background:#f3f4f6;
+                          border-radius:8px;
+                      ">
+                          Thank you for choosing
+                          <strong> DailyFresh ❤️</strong>
+                      </div>
+
+                      <p style="
+                          margin-top:25px;
+                          color:#6b7280;
+                          font-size:13px;
+                      ">
+                          This is an automated announcement from DailyFresh.
+                      </p>
+
+                  </div>
+
+              </div>
+              `,
+            }),
+          ),
+        );
+
+        results.forEach((result, index) => {
+          if (result.status === "fulfilled") {
+            successCount++;
+            console.log(`Email sent to ${chunk[index].email}`);
+          } else {
+            failedCount++;
+            console.error(
+              `Failed to send email to ${chunk[index].email}`,
+              result.reason,
+            );
+          }
+        });
+        console.log(`Batch ${Math.floor(i / CHUNK_SIZE) + 1} completed.`);
+        if (i + CHUNK_SIZE < users.length) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+
+      return {
+        successCount,
+        failedCount,
+      };
+    });
+
+    return {
+      success: true,
+      totalUsers: users.length,
+      sent: result.successCount,
+      failed: result.failedCount,
+    };
+  },
+);
+
+export const functions = [checkLowStock, sendAnnouncement];
