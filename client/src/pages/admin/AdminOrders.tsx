@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import Loading from "../../components/Loading";
 import api from "../../config/api";
 import toast from "react-hot-toast";
+import { ChevronRightIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 type OrderStatus = "Placed" | "Confirmed" | "Delivered" | "Cancelled";
 
@@ -10,6 +12,7 @@ export default function AdminOrders() {
 
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchOrders = async () => {
     try {
@@ -153,37 +156,47 @@ export default function AdminOrders() {
 
                   {/* Status */}
                   <td className="px-6 py-4">
-                    {order.status === "Delivered" ||
-                    order.status === "Cancelled" ? (
-                      <span
-                        className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold ${
-                          statusColors[order.status as OrderStatus]
-                        }`}
+                    <div className="flex items-center justify-between gap-3">
+                      {order.status === "Delivered" ||
+                      order.status === "Cancelled" ? (
+                        <span
+                          className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold ${
+                            statusColors[order.status as OrderStatus]
+                          }`}
+                        >
+                          {order.status}
+                        </span>
+                      ) : (
+                        <select
+                          value={order.status}
+                          onChange={(e) =>
+                            handleStatusChange(
+                              order.id,
+                              e.target.value as OrderStatus,
+                            )
+                          }
+                          onClick={(e) => e.stopPropagation()}
+                          className={`rounded-lg px-3 py-2 text-xs font-semibold outline-none border border-transparent cursor-pointer transition ${
+                            statusColors[order.status as OrderStatus]
+                          }`}
+                        >
+                          {getStatusOptions(order.status as OrderStatus).map(
+                            (status) => (
+                              <option key={status} value={status}>
+                                {status}
+                              </option>
+                            ),
+                          )}
+                        </select>
+                      )}
+
+                      <button
+                        onClick={() => navigate(`/admin/orders/${order.id}`)}
+                        className="size-8 rounded-full border border-app-border flex items-center justify-center hover:bg-app-cream transition"
                       >
-                        {order.status}
-                      </span>
-                    ) : (
-                      <select
-                        value={order.status}
-                        onChange={(e) =>
-                          handleStatusChange(
-                            order.id,
-                            e.target.value as OrderStatus,
-                          )
-                        }
-                        className={`rounded-lg px-3 py-2 text-xs font-semibold outline-none border border-transparent cursor-pointer transition ${
-                          statusColors[order.status as OrderStatus]
-                        }`}
-                      >
-                        {getStatusOptions(order.status as OrderStatus).map(
-                          (status) => (
-                            <option key={status} value={status}>
-                              {status}
-                            </option>
-                          ),
-                        )}
-                      </select>
-                    )}
+                        <ChevronRightIcon className="size-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

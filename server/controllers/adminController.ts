@@ -28,3 +28,46 @@ export const getAdminStats = async (req: Request, res: Response) => {
     recentOrders,
   });
 };
+
+// GET /api/admin/orders/:id
+export const getAdminOrder = async (req: Request, res: Response) => {
+  try {
+    const order = await prisma.order.findFirst({
+      where: {
+        id: req.params.id as string,
+        NOT: [
+          {
+            paymentMethod: "card",
+            isPaid: false,
+          },
+        ],
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found",
+      });
+    }
+
+    return res.json({
+      order,
+    });
+  } catch (error: any) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: error.message || "Failed to fetch order",
+    });
+  }
+};
