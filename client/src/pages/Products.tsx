@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
-import { categoriesData, dummyProducts } from "../assets/assets";
+import { categoriesData } from "../assets/assets";
 import type { Product } from "../types";
 
 import { SlidersHorizontal, XIcon } from "lucide-react";
@@ -9,6 +9,8 @@ import ProductCard from "../components/ProductCard";
 import Loading from "../components/Loading";
 import FilterPanel from "../components/FilterPanel";
 import MobileSearch from "../components/MobileSearch";
+import api from "../config/api";
+import toast from "react-hot-toast";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,15 +25,18 @@ const Products = () => {
 
   const fetchProducts = async () => {
     setLoading(true);
-
-    setTimeout(() => {
-      const filteredProducts = dummyProducts.filter(
-        (product) => category === "" || product.category === category,
-      );
-
-      setProducts(filteredProducts);
+    try {
+      const params = new URLSearchParams();
+      if (category && category !== "all") {
+        params.set("category", category);
+      }
+      const { data } = await api.get(`/products?${params.toString()}`);
+      setProducts(data.products);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message);
+    } finally {
       setLoading(false);
-    }, 250);
+    }
   };
 
   const updateFilter = (key: string, value: string) => {
@@ -95,13 +100,24 @@ const Products = () => {
             </p>
           </div>
 
-          <button
-            onClick={() => setFiltersOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-app-border rounded-xl shadow-sm hover:shadow transition-all duration-200 active:scale-95"
-          >
-            <SlidersHorizontal className="size-4" />
-            Filters
-          </button>
+          <div className="flex items-center gap-3">
+            {hasFilters && (
+              <button
+                onClick={clearFilters}
+                className="rounded-lg border border-app-border bg-white px-4 py-2 text-sm font-medium text-app-green transition hover:bg-app-green hover:text-white"
+              >
+                Clear Filter
+              </button>
+            )}
+
+            <button
+              onClick={() => setFiltersOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-app-border rounded-xl shadow-sm hover:shadow transition-all duration-200 active:scale-95"
+            >
+              <SlidersHorizontal className="size-4" />
+              Filters
+            </button>
+          </div>
         </div>
 
         <div className="transition-all duration-300 ease-in-out">
@@ -138,7 +154,7 @@ const Products = () => {
                 (product) =>
                   product.stock > 0 && (
                     <div
-                      key={product._id}
+                      key={product.id}
                       className="transition-all duration-300 hover:-translate-y-1"
                     >
                       <ProductCard product={product} />
@@ -151,7 +167,7 @@ const Products = () => {
       </div>
 
       <div
-        className={`fixed inset-0 z-50 transition-all duration-300 ${
+        className={`fixed inset-0 z-[1100] transition-all duration-300 ${
           filtersOpen ? "pointer-events-auto" : "pointer-events-none"
         }`}
       >

@@ -15,8 +15,12 @@ const MobileSearch = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (query.trim()) {
-      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+    const search = query.trim();
+
+    if (search) {
+      navigate(`/search?q=${encodeURIComponent(search)}`);
+    } else {
+      navigate("/search");
     }
   };
 

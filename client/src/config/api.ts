@@ -12,7 +12,7 @@ api.interceptors.request.use((config) => {
 });
 
 // Handle auth
-api.interceptors.request.use(
+api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {

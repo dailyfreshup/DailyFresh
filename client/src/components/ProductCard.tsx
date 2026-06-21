@@ -13,14 +13,14 @@ const ProductCard = ({ product }: Props) => {
   const { items, addToCart, updateQuantity, removeFromCart } = useCart();
   const navigate = useNavigate();
 
-  const cartItem = items.find((item) => item.product._id === product._id);
+  const cartItem = items.find((item) => item.product.id === product.id);
   const quantity = cartItem?.quantity || 0;
 
   const handlePlus = (e: React.MouseEvent) => {
     e.stopPropagation();
 
     if (cartItem) {
-      updateQuantity(product._id, cartItem.quantity + 1);
+      updateQuantity(product.id, cartItem.quantity + 1);
     } else {
       addToCart(product, 1);
     }
@@ -32,15 +32,15 @@ const ProductCard = ({ product }: Props) => {
     if (!cartItem) return;
 
     if (cartItem.quantity > 1) {
-      updateQuantity(product._id, cartItem.quantity - 1);
+      updateQuantity(product.id, cartItem.quantity - 1);
     } else {
-      removeFromCart(product._id);
+      removeFromCart(product.id);
     }
   };
 
   return (
     <div
-      onClick={() => navigate(`/products/${product._id}`)}
+      onClick={() => navigate(`/products/${product.id}`)}
       className="bg-white rounded-2xl border border-zinc-100 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group"
     >
       <div className="relative aspect-square bg-app-cream/30 p-3">
@@ -50,14 +50,9 @@ const ProductCard = ({ product }: Props) => {
           className="w-full h-full object-contain group-hover:scale-105 transition duration-300"
         />
 
-        {product.originalPrice > product.price && (
+        {(product.discount ?? 0) > 0 && (
           <span className="absolute top-3 left-3 px-2 py-1 text-[10px] font-semibold bg-app-orange text-white rounded-full shadow-sm">
-            {Math.round(
-              ((product.originalPrice - product.price) /
-                product.originalPrice) *
-                100,
-            )}
-            % OFF
+            {product.discount}% OFF
           </span>
         )}
 

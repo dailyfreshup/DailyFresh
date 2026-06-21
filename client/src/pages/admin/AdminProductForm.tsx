@@ -1,16 +1,19 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeftIcon } from "lucide-react";
-import { categoriesData, dummyProducts } from "../../assets/assets";
+import { categoriesData } from "../../assets/assets";
 import Loading from "../../components/Loading";
+import api from "../../config/api";
+import toast from "react-hot-toast";
 
 export default function AdminProductForm() {
   const { id } = useParams();
   const isEdit = Boolean(id);
 
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(isEdit);
-  // const [saving, setSaving] = useState(false);
-  const [saving] = useState(false); // change this later with the above useState
+  const [saving, setSaving] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({
@@ -22,21 +25,74 @@ export default function AdminProductForm() {
     category: "",
     unit: "",
     stock: "",
-    isOrganic: false,
+    isPopular: false,
   });
 
   useEffect(() => {
     const fetchData = async () => {
-      if (isEdit) {
-        setFormData(() => dummyProducts.find((p) => p._id === id) as any);
+      try {
+        if (isEdit) {
+          const { data: prodData } = await api.get(`/products/${id}`);
+          const p = prodData.product;
+          setFormData({
+            name: p.name,
+            description: p.description,
+            price: p.price.toString(),
+            originalPrice: p.originalPrice ? p.originalPrice.toString() : "",
+            category: p.category,
+            image: p.image,
+            unit: p.unit,
+            stock: p.stock,
+            isPopular: p.isPopular,
+          });
+        }
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || "Failed to load data");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchData();
   }, [id, isEdit]);
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
+    setSaving(true);
+    try {
+      let finalImageUrl = formData.image;
+      if (imageFile) {
+        const formDataUpload = new FormData();
+        formDataUpload.append("image", imageFile);
+        const { data } = await api.post("/upload", formDataUpload);
+        finalImageUrl = data.url;
+      }
+      if (!finalImageUrl) {
+        toast.error("Upload description image");
+        setSaving(false);
+        return;
+      }
+      const payload = {
+        ...formData,
+        image: finalImageUrl,
+        price: Number(formData.price),
+        originalPrice: formData.originalPrice
+          ? Number(formData.originalPrice)
+          : 0,
+        stock: Number(formData.stock),
+      };
+      if (isEdit) {
+        await api.put(`/products/${id}`, payload);
+        toast.success("Product updated");
+      } else {
+        await api.post("/products", payload);
+        toast.success("Product created");
+      }
+      navigate("/admin/products");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to create product");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -94,7 +150,7 @@ export default function AdminProductForm() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Price ($)
+                  Price (₹)
                 </label>
                 <input
                   required
@@ -110,7 +166,7 @@ export default function AdminProductForm() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Original Price ($) - Optional
+                  Original Price (₹) - Optional
                 </label>
                 <input
                   type="number"
@@ -195,17 +251,17 @@ export default function AdminProductForm() {
               </div>
               <div className="flex items-center gap-3">
                 <label
-                  htmlFor="isOrganic"
+                  htmlFor="isPopular"
                   className="text-sm font-medium text-zinc-700 cursor-pointer"
                 >
-                  Organic
+                  Popular
                 </label>
                 <input
                   type="checkbox"
-                  id="isOrganic"
-                  checked={formData.isOrganic}
+                  id="isPopular"
+                  checked={formData.isPopular}
                   onChange={(e) =>
-                    setFormData({ ...formData, isOrganic: e.target.checked })
+                    setFormData({ ...formData, isPopular: e.target.checked })
                   }
                   className="size-5 text-app-green rounded border-zinc-300 focus:ring-app-green cursor-pointer"
                 />
