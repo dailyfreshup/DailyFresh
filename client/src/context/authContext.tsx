@@ -15,14 +15,21 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
+
   login: (email: string, password: string) => Promise<void>;
-  register: (
+
+  sendOTP: (name: string, email: string, phone: string) => Promise<void>;
+
+  verifyOTP: (
     name: string,
     email: string,
     phone: string,
     password: string,
+    otp: string,
   ) => Promise<void>;
+
   logout: () => void;
+
   updateUser: (userData: Partial<User>) => void;
 }
 
@@ -55,50 +62,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    try {
-      const { data } = await api.post("/auth/login", {
-        email,
-        password,
-      });
+    const { data } = await api.post("/auth/login", {
+      email,
+      password,
+    });
 
-      setUser(data.user);
-      setToken(data.token);
+    setUser(data.user);
+    setToken(data.token);
 
-      localStorage.setItem("auth_token", data.token);
-      localStorage.setItem("auth_user", JSON.stringify(data.user));
+    localStorage.setItem("auth_token", data.token);
+    localStorage.setItem("auth_user", JSON.stringify(data.user));
 
-      toast.success("Login Successful");
-      navigate("/");
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || error?.message);
-    }
+    toast.success("Login Successful");
+
+    navigate("/");
   };
 
-  const register = async (
+  const sendOTP = async (name: string, email: string, phone: string) => {
+    await api.post("/auth/send-otp", {
+      name,
+      email,
+      phone,
+    });
+  };
+
+  const verifyOTP = async (
     name: string,
     email: string,
     phone: string,
     password: string,
+    otp: string,
   ) => {
-    try {
-      const { data } = await api.post("/auth/register", {
-        name,
-        email,
-        phone,
-        password,
-      });
+    const { data } = await api.post("/auth/verify-otp", {
+      name,
+      email,
+      phone,
+      password,
+      otp,
+    });
 
-      setUser(data.user);
-      setToken(data.token);
+    setUser(data.user);
+    setToken(data.token);
 
-      localStorage.setItem("auth_token", data.token);
-      localStorage.setItem("auth_user", JSON.stringify(data.user));
+    localStorage.setItem("auth_token", data.token);
+    localStorage.setItem("auth_user", JSON.stringify(data.user));
 
-      toast.success("Registration Successful");
-      navigate("/");
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || error?.message);
-    }
+    toast.success("Registration Successful");
+
+    navigate("/");
   };
 
   const logout = () => {
@@ -120,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     setUser(updatedUser);
+
     localStorage.setItem("auth_user", JSON.stringify(updatedUser));
   };
 
@@ -130,7 +142,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token,
         loading,
         login,
-        register,
+        sendOTP,
+        verifyOTP,
         logout,
         updateUser,
       }}

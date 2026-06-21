@@ -37,3 +37,8 @@ export type Product = Prisma.ProductModel
  * 
  */
 export type Order = Prisma.OrderModel
+/**
+ * Model EmailOTP
+ * 
+ */
+export type EmailOTP = Prisma.EmailOTPModel
