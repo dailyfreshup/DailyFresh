@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import { categoriesData } from "../assets/assets";
 import type { Product } from "../types";
 
@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  // const location = useLocation();
+  const location = useLocation();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,12 +62,12 @@ const Products = () => {
   useEffect(() => {
     fetchProducts();
   }, [category]);
-  // useEffect(() => {
-  //   window.scrollTo({
-  //     top: 0,
-  //     behavior: "smooth",
-  //   });
-  // }, [location.search]);
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [location.search]);
 
   useEffect(() => {
     if (filtersOpen) {

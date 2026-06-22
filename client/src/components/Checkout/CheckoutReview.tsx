@@ -61,7 +61,7 @@ export default function CheckoutReview({
       <button
         onClick={() => {
           setStep("summary");
-          // scrollTo(0, 0);
+          scrollTo(0, 0);
         }}
         className="mt-6 px-6 py-3 bg-app-green text-white font-semibold rounded-xl hover:bg-app-green-light transition-colors flex items-center gap-2"
       >

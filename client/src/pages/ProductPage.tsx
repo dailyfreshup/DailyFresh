@@ -32,10 +32,10 @@ const ProductPage = () => {
       try {
         setLoading(true);
 
-        // window.scrollTo({
-        //   top: 0,
-        //   behavior: "smooth",
-        // });
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
 
         const { data } = await api.get(`/products/${id}`);
 
