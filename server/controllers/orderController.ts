@@ -241,8 +241,16 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
       }
 
       // Deduct stock
+      const LOW_STOCK_THRESHOLD = Number(process.env.LOW_STOCK_THRESHOLD || 10);
+
       for (const item of orderItems) {
-        await prisma.product.update({
+        const productBefore = await prisma.product.findUnique({
+          where: {
+            id: item.product,
+          },
+        });
+
+        const updatedProduct = await prisma.product.update({
           where: {
             id: item.product,
           },
@@ -253,12 +261,20 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
           },
         });
 
-        await inngest.send({
-          name: "inventory/stock.updated",
-          data: {
-            productId: item.product,
-          },
-        });
+        if (
+          productBefore &&
+          productBefore.stock !== null &&
+          updatedProduct.stock !== null &&
+          productBefore.stock >= LOW_STOCK_THRESHOLD &&
+          updatedProduct.stock < LOW_STOCK_THRESHOLD
+        ) {
+          await inngest.send({
+            name: "inventory/stock.updated",
+            data: {
+              productId: item.product,
+            },
+          });
+        }
       }
     }
 
@@ -276,13 +292,6 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
             stock: {
               increment: item.quantity,
             },
-          },
-        });
-
-        await inngest.send({
-          name: "inventory/stock.updated",
-          data: {
-            productId: item.product,
           },
         });
       }
