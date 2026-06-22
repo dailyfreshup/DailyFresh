@@ -68,7 +68,11 @@ const ProductPage = () => {
   const discount = product.discount ?? 0;
   const categoryLabel = product.category.replace(/-/g, " ");
   const handlePlus = () => {
+    if ((product.stock ?? 0) <= 0) return;
+
     if (cartItem) {
+      if (cartItem.quantity >= (product.stock ?? 0)) return;
+
       updateQuantity(product.id, cartItem.quantity + 1);
     } else {
       addToCart(product, 1);
@@ -84,6 +88,7 @@ const ProductPage = () => {
     }
   };
   const handleAddToCart = () => {
+    if ((product.stock ?? 0) <= 0) return;
     addToCart(product, 1);
   };
 
@@ -103,8 +108,18 @@ const ProductPage = () => {
             <img
               src={product.image}
               alt={product.name}
-              className="max-h-[320px] object-contain hover:scale-105 transition-transform duration-300"
+              className={`max-h-[320px] object-contain transition-transform duration-300 ${
+                product.stock === 0 ? "grayscale opacity-60" : "hover:scale-105"
+              }`}
             />
+
+            {product.stock === 0 && (
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center rounded-2xl">
+                <span className="bg-red-600 text-white px-5 py-2 rounded-lg font-semibold shadow-lg">
+                  Out of Stock
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="space-y-6">
@@ -126,6 +141,21 @@ const ProductPage = () => {
               {discount > 0 && (
                 <span className="px-3 py-1 rounded-full bg-app-orange/10 text-app-orange text-sm font-semibold">
                   Save {discount}%
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <span
+                className={`text-sm font-medium ${
+                  (product.stock ?? 0) > 0 ? "text-green-600" : "text-red-600"
+                }`}
+              >
+                Stock: {product.stock ?? 0}
+              </span>
+
+              {(product.stock ?? 0) <= 5 && (product.stock ?? 0) > 0 && (
+                <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-sm font-medium">
+                  Low Stock
                 </span>
               )}
             </div>
@@ -170,7 +200,12 @@ const ProductPage = () => {
 
                   <button
                     onClick={handlePlus}
-                    className="p-3 hover:bg-app-cream transition"
+                    disabled={quantity >= (product.stock ?? 0)}
+                    className={`p-3 transition ${
+                      quantity >= (product.stock ?? 0)
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-app-cream"
+                    }`}
                   >
                     <PlusIcon className="w-4 h-4" />
                   </button>
@@ -178,10 +213,15 @@ const ProductPage = () => {
               ) : (
                 <button
                   onClick={handleAddToCart}
-                  className="w-full sm:w-fit py-3 px-6 rounded-xl font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98] bg-app-orange hover:bg-app-orange-dark text-white"
+                  disabled={(product.stock ?? 0) <= 0}
+                  className={`w-full sm:w-fit py-3 px-6 rounded-xl font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
+                    (product.stock ?? 0) <= 0
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-app-orange hover:bg-app-orange-dark text-white"
+                  }`}
                 >
                   <ShoppingCartIcon className="w-4 h-4" />
-                  Add to Cart
+                  {(product.stock ?? 0) <= 0 ? "Out of Stock" : "Add to Cart"}
                 </button>
               )}
             </div>
