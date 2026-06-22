@@ -19,7 +19,11 @@ const ProductCard = ({ product }: Props) => {
   const handlePlus = (e: React.MouseEvent) => {
     e.stopPropagation();
 
+    if ((product.stock ?? 0) <= 0) return;
+
     if (cartItem) {
+      if (cartItem.quantity >= (product.stock ?? 0)) return;
+
       updateQuantity(product.id, cartItem.quantity + 1);
     } else {
       addToCart(product, 1);
@@ -47,16 +51,28 @@ const ProductCard = ({ product }: Props) => {
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-contain group-hover:scale-105 transition duration-300"
+          className={`w-full h-full object-contain transition duration-300 ${
+            product.stock === 0
+              ? "grayscale opacity-60"
+              : "group-hover:scale-105"
+          }`}
         />
 
+        {product.stock === 0 && (
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-20">
+            <span className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-lg">
+              Out of Stock
+            </span>
+          </div>
+        )}
+
         {(product.discount ?? 0) > 0 && (
-          <span className="absolute top-3 left-3 px-2 py-1 text-[10px] font-semibold bg-app-orange text-white rounded-full shadow-sm">
+          <span className="absolute top-3 left-3 px-2 py-1 text-[10px] font-semibold bg-app-orange text-white rounded-full shadow-sm z-10">
             {product.discount}% OFF
           </span>
         )}
 
-        <div className="absolute bottom-3 right-3 z-10">
+        <div className="absolute bottom-3 right-3 z-30">
           {cartItem ? (
             <div
               onClick={(e) => e.stopPropagation()}
@@ -77,7 +93,12 @@ const ProductCard = ({ product }: Props) => {
 
               <button
                 onClick={handlePlus}
-                className="w-8 h-8 rounded-full bg-app-orange text-white flex items-center justify-center transition-all duration-150 active:scale-90 hover:opacity-90"
+                disabled={quantity >= (product.stock ?? 0)}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-150 ${
+                  quantity >= (product.stock ?? 0)
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-app-orange text-white active:scale-90 hover:opacity-90"
+                }`}
               >
                 <Plus className="size-4" strokeWidth={2.8} />
               </button>
@@ -85,7 +106,12 @@ const ProductCard = ({ product }: Props) => {
           ) : (
             <button
               onClick={handlePlus}
-              className="w-10 h-10 rounded-full bg-app-orange text-white flex items-center justify-center shrink-0 shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
+              disabled={(product.stock ?? 0) <= 0}
+              className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg transition-all duration-200 ${
+                (product.stock ?? 0) <= 0
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-app-orange text-white hover:scale-105 active:scale-95"
+              }`}
             >
               <Plus className="size-5" strokeWidth={2.8} />
             </button>
@@ -94,7 +120,17 @@ const ProductCard = ({ product }: Props) => {
       </div>
 
       <div className="p-3">
-        <p className="text-xs text-app-text-light mb-1">{product.unit}</p>
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-xs text-app-text-light">{product.unit}</p>
+
+          <span
+            className={`text-xs font-medium ${
+              (product.stock ?? 0) > 0 ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            Stock: {product.stock ?? 0}
+          </span>
+        </div>
 
         <h3 className="text-sm font-medium text-zinc-800 line-clamp-2 min-h-[40px] leading-5">
           {product.name}

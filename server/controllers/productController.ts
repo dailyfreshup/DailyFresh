@@ -16,6 +16,9 @@ export const getProducts = async (req: Request, res: Response) => {
   }
   if (popular === "true") {
     where.isPopular = true;
+    where.stock = {
+      gt: 0,
+    };
   }
   const products = await prisma.product.findMany({
     where,
