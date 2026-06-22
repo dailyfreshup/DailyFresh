@@ -124,7 +124,7 @@ export const footerData = {
   ],
 
   contact: [
-    { icon: MapPinIcon, text: "123 Green Valley Rd, Ghazipur" },
+    { icon: MapPinIcon, text: "Peernagar, Ghazipur" },
     { icon: PhoneIcon, text: "+91 73487 02447" },
     { icon: MailIcon, text: "akashraiaki29@gmail.com" },
   ],

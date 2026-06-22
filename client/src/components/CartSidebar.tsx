@@ -270,7 +270,7 @@ const CartSidebar = () => {
               onClick={() => {
                 setIsCartOpen(false);
                 navigate("/checkout");
-                window.scrollTo(0, 0);
+                // window.scrollTo(0, 0);
               }}
               className="w-full py-3 rounded-xl bg-app-orange text-white text-sm font-medium hover:bg-app-orange-dark transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >

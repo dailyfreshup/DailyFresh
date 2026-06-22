@@ -88,7 +88,7 @@ const Checkout = () => {
       toast.error(error.response?.data?.message || error.message || "Failed");
     } finally {
       setLoading(false);
-      scrollTo(0, 0);
+      // scrollTo(0, 0);
     }
   };
 
