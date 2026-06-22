@@ -62,12 +62,12 @@ const Products = () => {
   useEffect(() => {
     fetchProducts();
   }, [category]);
-  useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  }, [location.search]);
+  // useEffect(() => {
+  //   window.scrollTo({
+  //     top: 0,
+  //     behavior: "smooth",
+  //   });
+  // }, [location.search]);
 
   useEffect(() => {
     if (filtersOpen) {

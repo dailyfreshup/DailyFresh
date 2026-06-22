@@ -58,7 +58,7 @@ const CheckoutAddress = ({ user, address, setAddress, setStep }: any) => {
       <button
         onClick={() => {
           setStep("payment");
-          scrollTo(0, 0);
+          // scrollTo(0, 0);
         }}
         disabled={!address.address || !address.city}
         className="mt-6 px-6 py-3 bg-app-green text-white font-semibold rounded-xl hover:bg-app-green-light transition-colors disabled:opacity-50 flex items-center gap-2"
