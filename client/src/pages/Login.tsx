@@ -8,6 +8,8 @@ import {
   UserIcon,
   ArrowRightIcon,
   PhoneIcon,
+  EyeIcon,
+  EyeOffIcon,
 } from "lucide-react";
 import { useAuth } from "../context/authContext";
 import toast from "react-hot-toast";
@@ -18,6 +20,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [otp, setOtp] = useState("");
   const [showOtp, setShowOtp] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -254,14 +257,27 @@ const Login = () => {
                 <LockIcon className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
 
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   disabled={!isLogin && showOtp}
                   required
-                  className="w-full h-11 sm:h-12 pl-12 pr-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-green-700 outline-none transition-all"
+                  className="w-full h-11 sm:h-12 pl-12 pr-12 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-green-700 outline-none transition-all"
                 />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <EyeOffIcon className="size-5" />
+                  ) : (
+                    <EyeIcon className="size-5" />
+                  )}
+                </button>
               </div>
             </div>
             {!isLogin && showOtp && (
