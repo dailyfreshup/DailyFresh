@@ -273,9 +273,9 @@ const Login = () => {
                   tabIndex={-1}
                 >
                   {showPassword ? (
-                    <EyeOffIcon className="size-5" />
-                  ) : (
                     <EyeIcon className="size-5" />
+                  ) : (
+                    <EyeOffIcon className="size-5" />
                   )}
                 </button>
               </div>
