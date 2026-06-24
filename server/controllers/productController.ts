@@ -9,10 +9,26 @@ export const getProducts = async (req: Request, res: Response) => {
     where.category = category as string;
   }
   if (search) {
-    where.name = {
-      contains: search as string,
-      mode: "insensitive",
-    };
+    where.OR = [
+      {
+        name: {
+          contains: search as string,
+          mode: "insensitive",
+        },
+      },
+      {
+        description: {
+          contains: search as string,
+          mode: "insensitive",
+        },
+      },
+      {
+        category: {
+          contains: search as string,
+          mode: "insensitive",
+        },
+      },
+    ];
   }
   if (popular === "true") {
     where.isPopular = true;
@@ -33,6 +49,7 @@ export const getProducts = async (req: Request, res: Response) => {
   }));
   res.json({ products: productWithDiscount });
 };
+
 // GET /api/products/:id
 export const getProduct = async (req: Request, res: Response) => {
   const product = await prisma.product.findUnique({
