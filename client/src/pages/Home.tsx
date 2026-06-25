@@ -1,3 +1,4 @@
+import BottomCartBar from "../components/BottomCartBar";
 import Hero from "../components/Home/Hero";
 import HomeCatagories from "../components/Home/HomeCategories";
 import PopularProducts from "../components/Home/PopularProducts";
@@ -8,6 +9,7 @@ const Home = () => {
       <Hero />
       <HomeCatagories />
       <PopularProducts />
+      <BottomCartBar />
     </div>
   );
 };
