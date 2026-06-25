@@ -11,6 +11,7 @@ import FilterPanel from "../components/FilterPanel";
 import MobileSearch from "../components/MobileSearch";
 import api from "../config/api";
 import toast from "react-hot-toast";
+import BottomCartBar from "../components/BottomCartBar";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -207,6 +208,7 @@ const Products = () => {
           </div>
         </div>
       </div>
+      <BottomCartBar />
     </div>
   );
 };
