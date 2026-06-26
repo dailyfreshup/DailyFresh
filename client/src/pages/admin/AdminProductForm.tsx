@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, XIcon } from "lucide-react";
 import { categoriesData } from "../../assets/assets";
 import Loading from "../../components/Loading";
 import api from "../../config/api";
@@ -15,6 +15,7 @@ export default function AdminProductForm() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [tagInput, setTagInput] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -26,6 +27,7 @@ export default function AdminProductForm() {
     unit: "",
     stock: "",
     isPopular: false,
+    tags: [] as string[],
   });
 
   useEffect(() => {
@@ -44,6 +46,7 @@ export default function AdminProductForm() {
             unit: p.unit,
             stock: p.stock,
             isPopular: p.isPopular,
+            tags: p.tags ?? [],
           });
         }
       } catch (error: any) {
@@ -54,6 +57,28 @@ export default function AdminProductForm() {
     };
     fetchData();
   }, [id, isEdit]);
+
+  const addTag = () => {
+    const tag = tagInput.trim().toLowerCase();
+
+    if (!tag) return;
+
+    if (!formData.tags.includes(tag)) {
+      setFormData({
+        ...formData,
+        tags: [...formData.tags, tag],
+      });
+    }
+
+    setTagInput("");
+  };
+
+  const removeTag = (tag: string) => {
+    setFormData({
+      ...formData,
+      tags: formData.tags.filter((t) => t !== tag),
+    });
+  };
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
@@ -268,6 +293,46 @@ export default function AdminProductForm() {
                     className="w-full px-4 py-2.5 rounded-lg border border-zinc-200 focus:border-app-green outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-app-orange file:text-white hover:file:bg-orange-600 cursor-pointer"
                   />
                 </div>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-zinc-700 mb-2">
+                  Tags
+                </label>
+
+                <input
+                  type="text"
+                  value={tagInput}
+                  placeholder="Type a tag and press Enter"
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addTag();
+                    }
+                  }}
+                  className="w-full px-4 py-2.5 rounded-lg border border-zinc-200 focus:border-app-green focus:ring-1 focus:ring-app-green outline-none"
+                />
+
+                {formData.tags.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {formData.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="flex items-center gap-1 bg-app-green/10 text-app-green px-3 py-1 rounded-full text-sm"
+                      >
+                        {tag}
+
+                        <button
+                          type="button"
+                          onClick={() => removeTag(tag)}
+                          className="hover:text-red-500"
+                        >
+                          <XIcon className="size-3.5" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-zinc-700 mb-2">
