@@ -9,25 +9,31 @@ export const getProducts = async (req: Request, res: Response) => {
     where.category = category as string;
   }
   if (search) {
-    where.OR = [
+    const terms = (search as string)
+      .trim()
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean);
+
+    where.OR = terms.flatMap((term) => [
       {
         name: {
-          contains: search as string,
+          contains: term,
           mode: "insensitive",
         },
       },
       {
         category: {
-          contains: search as string,
+          contains: term,
           mode: "insensitive",
         },
       },
       {
         tags: {
-          has: (search as string).trim().toLowerCase(),
+          has: term,
         },
       },
-    ];
+    ]);
   }
   if (popular === "true") {
     where.isPopular = true;
