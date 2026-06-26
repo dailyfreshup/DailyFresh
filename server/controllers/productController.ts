@@ -17,15 +17,14 @@ export const getProducts = async (req: Request, res: Response) => {
         },
       },
       {
-        description: {
+        category: {
           contains: search as string,
           mode: "insensitive",
         },
       },
       {
-        category: {
-          contains: search as string,
-          mode: "insensitive",
+        tags: {
+          has: (search as string).trim().toLowerCase(),
         },
       },
     ];
