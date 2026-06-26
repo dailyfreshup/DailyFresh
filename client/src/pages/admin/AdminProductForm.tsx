@@ -59,16 +59,17 @@ export default function AdminProductForm() {
   }, [id, isEdit]);
 
   const addTag = () => {
-    const tag = tagInput.trim().toLowerCase();
+    const tags = tagInput
+      .split(/[\s,\n]+/) // spaces, commas, Enter/new lines
+      .map((tag) => tag.trim().toLowerCase())
+      .filter(Boolean);
 
-    if (!tag) return;
+    if (!tags.length) return;
 
-    if (!formData.tags.includes(tag)) {
-      setFormData({
-        ...formData,
-        tags: [...formData.tags, tag],
-      });
-    }
+    setFormData((prev) => ({
+      ...prev,
+      tags: [...new Set([...prev.tags, ...tags])], // remove duplicates
+    }));
 
     setTagInput("");
   };
@@ -299,19 +300,29 @@ export default function AdminProductForm() {
                   Tags
                 </label>
 
-                <input
-                  type="text"
-                  value={tagInput}
-                  placeholder="Type a tag and press Enter"
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addTag();
-                    }
-                  }}
-                  className="w-full px-4 py-2.5 rounded-lg border border-zinc-200 focus:border-app-green focus:ring-1 focus:ring-app-green outline-none"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={tagInput}
+                    placeholder="Enter tags (space, comma or Enter separated)"
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addTag();
+                      }
+                    }}
+                    className="flex-1 px-4 py-2.5 rounded-lg border border-zinc-200 focus:border-app-green focus:ring-1 focus:ring-app-green outline-none"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={addTag}
+                    className="px-5 rounded-lg bg-app-green text-white hover:bg-green-700 transition-colors"
+                  >
+                    Add
+                  </button>
+                </div>
 
                 {formData.tags.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
