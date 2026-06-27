@@ -304,7 +304,7 @@ export default function AdminProductForm() {
                   <input
                     type="text"
                     value={tagInput}
-                    placeholder="Enter tags (space, comma or Enter separated)"
+                    placeholder="Enter tags"
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
@@ -312,7 +312,7 @@ export default function AdminProductForm() {
                         addTag();
                       }
                     }}
-                    className="flex-1 px-4 py-2.5 rounded-lg border border-zinc-200 focus:border-app-green focus:ring-1 focus:ring-app-green outline-none"
+                    className="w-full sm:w-64 lg:w-96 px-4 py-2.5 rounded-lg border border-zinc-200 focus:border-app-green focus:ring-1 focus:ring-app-green outline-none"
                   />
 
                   <button

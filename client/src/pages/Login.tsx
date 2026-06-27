@@ -7,6 +7,7 @@ import {
   MailIcon,
   UserIcon,
   ArrowRightIcon,
+  ArrowLeftIcon,
   PhoneIcon,
   EyeIcon,
   EyeOffIcon,
@@ -26,34 +27,71 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
+  const [forgotOtpVerified, setForgotOtpVerified] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
 
-  const { login, sendOTP, verifyOTP } = useAuth();
+  const {
+    login,
+    sendOTP,
+    verifyOTP,
+    sendForgotOTP,
+    verifyForgotOTP,
+    resetPassword,
+  } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      if (isLogin) {
+      if (isLogin && !forgotMode) {
         await login(email, password);
-      } else {
+      } else if (!isLogin) {
         if (!showOtp) {
           await sendOTP(name, email, phone);
           toast.success("OTP sent to your email");
           setShowOtp(true);
           setCountdown(60);
           setCanResend(false);
-          setShowOtp(true);
         } else {
           if (otp.length !== 6) {
-            toast.error("Please enter a valid 6-digit OTP");
+            toast.error("Please enter a valid OTP");
             return;
           }
           await verifyOTP(name, email, phone, password, otp);
         }
+      } else {
+        if (!showOtp) {
+          await sendForgotOTP(email);
+          toast.success("OTP sent");
+          setShowOtp(true);
+          setCountdown(60);
+          setCanResend(false);
+        } else if (!forgotOtpVerified) {
+          if (otp.length !== 6) {
+            toast.error("Please enter a valid OTP");
+            return;
+          }
+          await verifyForgotOTP(email, otp);
+          toast.success("OTP verified");
+          setForgotOtpVerified(true);
+        } else {
+          await resetPassword(email, otp, newPassword);
+          setIsLogin(true);
+          setForgotMode(false);
+          setForgotOtpVerified(false);
+          setShowOtp(false);
+          setOtp("");
+          setNewPassword("");
+          setPassword("");
+          setEmail("");
+          setCanResend(false);
+          setCountdown(60);
+        }
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || error.message);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || err.message);
     } finally {
       setLoading(false);
     }
@@ -154,15 +192,41 @@ const Login = () => {
           {/* Top */}
           <div className="text-center mb-4">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              {isLogin ? "Welcome Back" : "Create Account"}
+              {forgotMode
+                ? "Reset Password"
+                : isLogin
+                  ? "Welcome Back"
+                  : "Create Account"}
             </h2>
 
             <p className="text-gray-500 mt-2 text-sm">
-              {isLogin
-                ? "Sign in to continue ordering fresh essentials."
-                : "Create your account and start sourcing smarter."}
+              {forgotMode
+                ? "Verify your email and create a new password."
+                : isLogin
+                  ? "Sign in to continue ordering fresh essentials."
+                  : "Create your account and start sourcing smarter."}
             </p>
           </div>
+          {forgotMode && (
+            <button
+              type="button"
+              onClick={() => {
+                setForgotMode(false);
+                setForgotOtpVerified(false);
+                setShowOtp(false);
+                setOtp("");
+                setNewPassword("");
+                setPassword("");
+                setEmail("");
+                setCanResend(false);
+                setCountdown(60);
+              }}
+              className="mb-4 flex items-center gap-2 text-sm font-medium text-green-700 hover:text-green-900 transition-colors"
+            >
+              <ArrowLeftIcon className="h-4 w-4" />
+              <span>Back to Login</span>
+            </button>
+          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -202,7 +266,7 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   required
-                  disabled={!isLogin && showOtp}
+                  disabled={showOtp}
                   className="w-full h-11 sm:h-12 pl-12 pr-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-green-700 outline-none transition-all"
                 />
               </div>
@@ -236,51 +300,68 @@ const Login = () => {
                 </div>
               </div>
             )}
+            {(!forgotMode || forgotOtpVerified) && (
+              <div>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-gray-700">
+                    Password
+                  </label>
 
-            <div>
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-700">
-                  Password
-                </label>
+                  {isLogin && !forgotMode && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setForgotMode(true);
+                        setShowOtp(false);
+                        setOtp("");
+                        setNewPassword("");
+                        setForgotOtpVerified(false);
+                        setPassword("");
+                      }}
+                      className="text-sm text-green-700 hover:text-green-800"
+                    >
+                      Forgot Password?
+                    </button>
+                  )}
+                </div>
 
-                {isLogin && (
+                <div className="relative mt-2">
+                  <LockIcon className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={forgotMode ? newPassword : password}
+                    onChange={(e) =>
+                      forgotMode
+                        ? setNewPassword(e.target.value)
+                        : setPassword(e.target.value)
+                    }
+                    placeholder={
+                      forgotMode ? "Enter new password" : "Enter your password"
+                    }
+                    disabled={
+                      forgotMode ? !forgotOtpVerified : !isLogin && showOtp
+                    }
+                    required
+                    className="w-full h-11 sm:h-12 pl-12 pr-12 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-green-700 outline-none transition-all"
+                  />
+
                   <button
                     type="button"
-                    className="text-sm text-green-700 hover:text-green-800"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors"
+                    tabIndex={-1}
                   >
-                    Forgot Password?
+                    {showPassword ? (
+                      <EyeIcon className="size-5" />
+                    ) : (
+                      <EyeOffIcon className="size-5" />
+                    )}
                   </button>
-                )}
+                </div>
               </div>
-
-              <div className="relative mt-2">
-                <LockIcon className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  disabled={!isLogin && showOtp}
-                  required
-                  className="w-full h-11 sm:h-12 pl-12 pr-12 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-green-700 outline-none transition-all"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors"
-                  tabIndex={-1}
-                >
-                  {showPassword ? (
-                    <EyeIcon className="size-5" />
-                  ) : (
-                    <EyeOffIcon className="size-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-            {!isLogin && showOtp && (
+            )}
+            {showOtp && !forgotOtpVerified && (
               <div>
                 <label className="text-sm font-medium text-gray-700">OTP</label>
 
@@ -300,14 +381,18 @@ const Login = () => {
               </div>
             )}
 
-            {!isLogin && showOtp && (
+            {showOtp && !forgotOtpVerified && (
               <div className="text-right">
                 <button
                   type="button"
                   disabled={!canResend}
                   onClick={async () => {
                     try {
-                      await sendOTP(name, email, phone);
+                      if (forgotMode) {
+                        await sendForgotOTP(email);
+                      } else {
+                        await sendOTP(name, email, phone);
+                      }
                       toast.success("OTP resent");
 
                       setCountdown(60);
@@ -329,14 +414,27 @@ const Login = () => {
 
             <button
               type="submit"
-              disabled={loading || (!isLogin && showOtp && otp.length !== 6)}
+              disabled={
+                loading || (showOtp && !forgotOtpVerified && otp.length !== 6)
+              }
               className="w-full h-11 sm:h-12 rounded-xl bg-green-950 hover:bg-green-900 text-white font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-60"
             >
               {loading ? (
                 <Loader2Icon className="animate-spin size-5" />
               ) : (
                 <>
-                  {isLogin ? "Sign In" : showOtp ? "Verify OTP" : "Send OTP"}
+                  {forgotMode
+                    ? !showOtp
+                      ? "Send OTP"
+                      : !forgotOtpVerified
+                        ? "Verify OTP"
+                        : "Reset Password"
+                    : isLogin
+                      ? "Sign In"
+                      : showOtp
+                        ? "Verify OTP"
+                        : "Send OTP"}
+
                   <ArrowRightIcon className="size-4" />
                 </>
               )}
@@ -358,6 +456,9 @@ const Login = () => {
                 setCanResend(false);
                 setCountdown(60);
                 setShowOtp(false);
+                setForgotMode(false);
+                setForgotOtpVerified(false);
+                setNewPassword("");
               }}
               className="ml-2 text-green-800 font-semibold hover:text-green-950 transition-colors"
             >
