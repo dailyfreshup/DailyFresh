@@ -84,8 +84,8 @@ export const sendAnnouncement = async (req: Request, res: Response) => {
     await inngest.send({
       name: "announcement/send",
       data: {
-        subject: "Test",
-        message: "Hello",
+        subject: subject,
+        message: message,
       },
     });
 
