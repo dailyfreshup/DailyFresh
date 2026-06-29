@@ -367,4 +367,78 @@ export const sendEmailOTP = inngest.createFunction(
   },
 );
 
-export const functions = [checkLowStock, sendAnnouncement, sendEmailOTP];
+// Contact dailyfreshadmin@gmail.com
+export const contactMessage = inngest.createFunction(
+  {
+    id: "contact-message",
+    name: "Contact Message",
+    triggers: [
+      {
+        event: "contact/message.sent",
+      },
+    ],
+  },
+  async ({ event, step }) => {
+    const { userId, subject, message } = event.data;
+
+    const user = await step.run("get-user", async () => {
+      return prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
+    });
+
+    if (!user) return;
+
+    await step.run("send-email", async () => {
+      await sendEmail({
+        to: "dailyfreshadmin@gmail.com",
+        subject: `Contact Form - ${subject}`,
+        body: `
+        <div style="font-family:Arial,sans-serif;max-width:650px;margin:auto">
+
+            <h2 style="color:#057123">
+                New Contact Message
+            </h2>
+
+            <hr>
+
+            <p><b>Name:</b> ${user.name}</p>
+
+            <p><b>Email:</b> ${user.email}</p>
+
+            <p><b>Phone:</b> ${user.phone}</p>
+
+            <p><b>Subject:</b> ${subject}</p>
+
+            <p><b>Message:</b></p>
+
+            <div
+                style="
+                    background:#f5f5f5;
+                    padding:15px;
+                    border-radius:8px;
+                    white-space:pre-wrap;
+                "
+            >
+                ${message}
+            </div>
+
+        </div>
+        `,
+      });
+    });
+
+    return {
+      success: true,
+    };
+  },
+);
+
+export const functions = [
+  checkLowStock,
+  sendAnnouncement,
+  contactMessage,
+  sendEmailOTP,
+];
