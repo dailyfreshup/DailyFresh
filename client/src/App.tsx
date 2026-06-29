@@ -8,7 +8,7 @@ import ProductPage from "./pages/ProductPage";
 import SearchResults from "./pages/SearchResults";
 import Checkout from "./pages/Checkout";
 import MyOrders from "./pages/MyOrders";
-// import Contact from "./pages/Contact";
+import Contact from "./pages/Contact";
 import OrderTracking from "./pages/OrderTracking";
 import Addresses from "./pages/Addresses";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -43,7 +43,7 @@ const App = () => {
           <Route index element={<Home />} />
           <Route path="products" element={<Products />} />
           <Route path="about" element={<About />} />
-          <Route path="contact" element={<About />} />
+          <Route path="contact" element={<Contact />} />
           {/* <Route path="contact" element={<Contact />} /> */}
           <Route path="products/:id" element={<ProductPage />} />
           <Route path="search" element={<SearchResults />} />
