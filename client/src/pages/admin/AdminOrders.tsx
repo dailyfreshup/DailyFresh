@@ -12,8 +12,14 @@ export default function AdminOrders() {
 
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState<"All" | OrderStatus>(
+    "All",
+  );
   const navigate = useNavigate();
-
+  const filteredOrders =
+    selectedStatus === "All"
+      ? orders
+      : orders.filter((order) => order.status === selectedStatus);
   const fetchOrders = async () => {
     try {
       const { data } = await api.get("/orders/all");
@@ -94,8 +100,22 @@ export default function AdminOrders() {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-app-border overflow-hidden">
-      <div className="px-6 py-5 border-b border-app-border">
+      <div className="px-6 py-5 border-b border-app-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="text-xl font-semibold text-zinc-900">Orders</h2>
+
+        <select
+          value={selectedStatus}
+          onChange={(e) =>
+            setSelectedStatus(e.target.value as "All" | OrderStatus)
+          }
+          className="rounded-lg border border-app-border px-4 py-2 text-sm outline-none focus:border-app-green"
+        >
+          <option value="All">All Orders</option>
+          <option value="Placed">Placed</option>
+          <option value="Confirmed">Confirmed</option>
+          <option value="Delivered">Delivered</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
       </div>
 
       <div className="overflow-x-auto">
@@ -110,14 +130,14 @@ export default function AdminOrders() {
           </thead>
 
           <tbody className="divide-y divide-app-border">
-            {orders.length === 0 ? (
+            {filteredOrders.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-6 py-8 text-center text-zinc-500">
                   No orders found.
                 </td>
               </tr>
             ) : (
-              orders.map((order) => (
+              filteredOrders.map((order) => (
                 <tr
                   key={order.id}
                   className="hover:bg-zinc-50 transition-colors"
