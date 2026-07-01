@@ -6,13 +6,36 @@ import {
   LogOutIcon,
   ShieldIcon,
   ChevronRightIcon,
+  PencilIcon,
+  XIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import Loading from "../components/Loading";
+import { useEffect, useState } from "react";
+import api from "../config/api";
+import toast from "react-hot-toast";
 
 const ProfilePage = () => {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, updateUser } = useAuth();
+
+  const [saving, setSaving] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+  });
+
+  useEffect(() => {
+    if (user) {
+      setForm({
+        name: user.name,
+        phone: user.phone,
+      });
+    }
+  }, [user]);
+
   if (loading) {
     return <Loading />;
   }
@@ -21,26 +44,143 @@ const ProfilePage = () => {
     logout();
   };
 
+  const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!user || saving) return;
+
+    setSaving(true);
+
+    try {
+      const { data } = await api.put(`/profile/${user.id}`, {
+        name: form.name,
+        phone: form.phone,
+      });
+
+      updateUser({
+        name: data.user.name,
+        phone: data.user.phone,
+      });
+
+      toast.success("Profile updated");
+      setEditMode(false);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const cancelEdit = () => {
+    if (!user) return;
+
+    setForm({
+      name: user.name,
+      phone: user.phone,
+    });
+
+    setEditMode(false);
+  };
+
   return (
     <div className="min-h-screen bg-zinc-100">
       {/* Header */}
       <div
-        className="pb-20 pt-10"
+        className="relative pb-20 pt-10"
         style={{
           background:
             "linear-gradient(180deg, #3d6b4a 0%, #2d4a35 50%, #1b3022 100%)",
         }}
       >
-        <div className="flex flex-col items-center">
+        {/* Edit Button */}
+        <button
+          onClick={() => {
+            if (editMode) {
+              cancelEdit();
+            } else {
+              setEditMode(true);
+            }
+          }}
+          className="absolute right-5 top-5 rounded-full bg-white p-2 text-[#1b3022] shadow-md transition hover:scale-105"
+        >
+          {editMode ? <XIcon size={18} /> : <PencilIcon size={18} />}
+        </button>
+
+        <div className="flex flex-col items-center px-4">
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white text-3xl font-bold text-[#1b3022] shadow-lg">
             {user?.name.charAt(0).toUpperCase()}
           </div>
 
-          <h1 className="mt-4 text-2xl font-bold text-white">{user?.name}</h1>
+          <form
+            onSubmit={handleProfileUpdate}
+            className="mt-6 flex w-full max-w-sm flex-col items-center"
+          >
+            <div className="w-full text-center text-white">
+              {/* Name */}
+              {editMode ? (
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                  className="w-full rounded-md bg-white/10 px-3 py-2 text-center text-3xl font-bold tracking-tight text-white outline-none transition focus:bg-white/15"
+                />
+              ) : (
+                <h2 className="text-4xl font-bold tracking-tight">
+                  {user?.name}
+                </h2>
+              )}
 
-          <p className="mt-1 text-sm text-zinc-200">{user?.email}</p>
+              {/* Phone */}
+              <div className="mt-2">
+                {editMode ? (
+                  <input
+                    type="tel"
+                    value={form.phone}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
+                    placeholder="Not Added"
+                    className="w-full rounded-md bg-white/10 px-3 py-2 text-center text-base text-white placeholder:text-white/50 outline-none transition focus:bg-white/15"
+                  />
+                ) : (
+                  <p className="text-lg text-white/90">
+                    {user?.phone || "Not Added"}
+                  </p>
+                )}
+              </div>
+              {/* Email */}
+              <div className="mt-3">
+                {editMode ? (
+                  <input
+                    type="email"
+                    value={user?.email || ""}
+                    disabled
+                    className="w-full cursor-not-allowed rounded-md bg-white/10 px-3 py-2 text-center text-base text-white/80 outline-none"
+                  />
+                ) : (
+                  <p className="text-lg text-white/90">{user?.email}</p>
+                )}
+              </div>
+            </div>
 
-          <p className="text-sm text-zinc-300">{user?.phone}</p>
+            {editMode && (
+              <button
+                type="submit"
+                disabled={saving}
+                className="mt-6 w-full rounded-xl bg-white py-3 font-semibold text-[#1b3022] transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+            )}
+          </form>
         </div>
       </div>
 
