@@ -10,6 +10,7 @@ import { inngest, functions } from "./inngest/index.js";
 import addressRouter from "./routes/addressRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
 import contactRouter from "./routes/contactRoutes.js";
+import profileRouter from "./routes/profileRoutes.js";
 
 const app = express();
 
@@ -27,7 +28,8 @@ app.use("/api/products", productRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/addresses", addressRouter);
 app.use("/api/admin", adminRouter);
-app.use("/api/contact", contactRouter)
+app.use("/api/contact", contactRouter);
+app.use("/api/profile", profileRouter);
 
 //  Ingest
 app.use("/api/inngest", serve({ client: inngest, functions }));
