@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
+import { uploadImage } from "../utils/uploadImage.js";
 
 // GET /api/products
 export const getProducts = async (req: Request, res: Response) => {
@@ -79,17 +80,65 @@ export const getProduct = async (req: Request, res: Response) => {
 
 // POST /api/products
 export const createProduct = async (req: Request, res: Response) => {
-  const product = await prisma.product.create({ data: req.body });
-  res.status(201).json({ product });
+  try {
+    let imageUrl = "";
+    if (req.file) {
+      imageUrl = await uploadImage(req.file.buffer);
+    }
+    const tags = Array.isArray(req.body.tags)
+      ? req.body.tags
+      : req.body.tags
+        ? [req.body.tags]
+        : [];
+    const product = await prisma.product.create({
+      data: {
+        ...req.body,
+        image: imageUrl,
+        tags,
+        price: Number(req.body.price),
+        originalPrice: Number(req.body.originalPrice),
+        stock: Number(req.body.stock),
+        isPopular: req.body.isPopular === "true",
+      },
+    });
+    res.status(201).json({ product });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to create product" });
+  }
 };
 
-// POST /api/products/:id
+// PUT /api/products/:id
 export const updateProduct = async (req: Request, res: Response) => {
-  const product = await prisma.product.update({
-    where: { id: req.params.id as string },
-    data: req.body,
-  });
-  res.json({ product });
+  try {
+    let imageUrl = req.body.image;
+    if (req.file) {
+      imageUrl = await uploadImage(req.file.buffer);
+    }
+    const tags = Array.isArray(req.body.tags)
+      ? req.body.tags
+      : req.body.tags
+        ? [req.body.tags]
+        : [];
+    const product = await prisma.product.update({
+      where: {
+        id: req.params.id as string,
+      },
+      data: {
+        ...req.body,
+        image: imageUrl,
+        tags,
+        price: Number(req.body.price),
+        originalPrice: Number(req.body.originalPrice),
+        stock: Number(req.body.stock),
+        isPopular: req.body.isPopular === "true",
+      },
+    });
+    res.json({ product });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update product" });
+  }
 };
 
 // Delete /api/products/:id

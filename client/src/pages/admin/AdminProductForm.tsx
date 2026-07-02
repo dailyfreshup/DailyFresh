@@ -81,7 +81,7 @@ export default function AdminProductForm() {
     });
   };
 
-  const handleSubmit = async (e: React.SubmitEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     if (imageFile && imageFile.size > 5 * 1024 * 1024) {
@@ -90,48 +90,27 @@ export default function AdminProductForm() {
       return;
     }
     try {
-      let finalImageUrl = formData.image;
+      const payload = new FormData();
+      payload.append("name", formData.name);
+      payload.append("description", formData.description);
+      payload.append("category", formData.category);
+      payload.append("unit", formData.unit);
+      payload.append("price", formData.price);
+      payload.append("originalPrice", formData.originalPrice || "0");
+      payload.append("stock", formData.stock);
+      payload.append("isPopular", String(formData.isPopular));
+      formData.tags.forEach((tag) => {
+        payload.append("tags", tag);
+      });
       if (imageFile) {
-        const formDataUpload = new FormData();
-
-        formDataUpload.append("file", imageFile);
-        formDataUpload.append(
-          "upload_preset",
-          import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
-        );
-
-        const response = await fetch(
-          `https://api.cloudinary.com/v1_1/${
-            import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
-          }/image/upload`,
-          {
-            method: "POST",
-            body: formDataUpload,
-          },
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error?.message || "Image upload failed");
-        }
-
-        finalImageUrl = data.secure_url;
-      }
-      if (!finalImageUrl) {
-        toast.error("Upload description image");
+        payload.append("image", imageFile);
+      } else if (isEdit) {
+        payload.append("image", formData.image);
+      } else {
+        toast.error("Please upload a product image");
         setSaving(false);
         return;
       }
-      const payload = {
-        ...formData,
-        image: finalImageUrl,
-        price: Number(formData.price),
-        originalPrice: formData.originalPrice
-          ? Number(formData.originalPrice)
-          : 0,
-        stock: Number(formData.stock),
-      };
       if (isEdit) {
         await api.put(`/products/${id}`, payload);
         toast.success("Product updated");
@@ -144,7 +123,7 @@ export default function AdminProductForm() {
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          "Failed to create product",
+          "Failed to save product",
       );
     } finally {
       setSaving(false);
