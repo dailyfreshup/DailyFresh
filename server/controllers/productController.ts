@@ -1,6 +1,21 @@
 import { Request, Response } from "express";
 import { prisma } from "../config/prisma.js";
 import { uploadImage } from "../utils/uploadImage.js";
+import cloudinary from "../config/cloudinary.js";
+
+const parseNumberField = (value: unknown, field: string): number | null => {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+
+  const parsed = Number(value);
+
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+
+  return parsed;
+};
 
 // GET /api/products
 export const getProducts = async (req: Request, res: Response) => {
@@ -81,63 +96,155 @@ export const getProduct = async (req: Request, res: Response) => {
 // POST /api/products
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    let imageUrl = "";
-    if (req.file) {
-      imageUrl = await uploadImage(req.file.buffer);
+    const {
+      name,
+      description,
+      price,
+      originalPrice,
+      category,
+      stock,
+      tags,
+      isPopular,
+    } = req.body;
+    const parsedPrice = parseNumberField(price, "price");
+    const parsedOriginalPrice = parseNumberField(
+      originalPrice,
+      "originalPrice",
+    );
+    const parsedStock = parseNumberField(stock, "stock");
+    if (
+      parsedPrice === null ||
+      parsedOriginalPrice === null ||
+      parsedStock === null
+    ) {
+      return res.status(400).json({
+        message: "price, originalPrice and stock must all be valid numbers.",
+      });
     }
-    const tags = Array.isArray(req.body.tags)
-      ? req.body.tags
-      : req.body.tags
-        ? [req.body.tags]
-        : [];
-    const product = await prisma.product.create({
-      data: {
-        ...req.body,
-        image: imageUrl,
-        tags,
-        price: Number(req.body.price),
-        originalPrice: Number(req.body.originalPrice),
-        stock: Number(req.body.stock),
-        isPopular: req.body.isPopular === "true",
-      },
+    let imageUrl = "";
+    let uploadedPublicId: string | null = null;
+    if (req.file) {
+      const uploaded = await uploadImage(req.file.buffer);
+      imageUrl = uploaded.secure_url;
+      uploadedPublicId = uploaded.public_id;
+    }
+    try {
+      const product = await prisma.product.create({
+        data: {
+          name,
+          description,
+          image: imageUrl,
+          price: parsedPrice,
+          originalPrice: parsedOriginalPrice,
+          category,
+          stock: parsedStock,
+          tags: Array.isArray(tags)
+            ? tags
+            : typeof tags === "string"
+              ? JSON.parse(tags)
+              : [],
+          isPopular: isPopular === true || isPopular === "true",
+        },
+      });
+      return res.status(201).json(product);
+    } catch (err) {
+      if (uploadedPublicId) {
+        await cloudinary.uploader.destroy(uploadedPublicId);
+      }
+      throw err;
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Failed to create product",
     });
-    res.status(201).json({ product });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to create product" });
   }
 };
 
 // PUT /api/products/:id
 export const updateProduct = async (req: Request, res: Response) => {
   try {
-    let imageUrl = req.body.image;
-    if (req.file) {
-      imageUrl = await uploadImage(req.file.buffer);
-    }
-    const tags = Array.isArray(req.body.tags)
-      ? req.body.tags
-      : req.body.tags
-        ? [req.body.tags]
-        : [];
-    const product = await prisma.product.update({
+    const existing = await prisma.product.findUnique({
       where: {
         id: req.params.id as string,
       },
-      data: {
-        ...req.body,
-        image: imageUrl,
-        tags,
-        price: Number(req.body.price),
-        originalPrice: Number(req.body.originalPrice),
-        stock: Number(req.body.stock),
-        isPopular: req.body.isPopular === "true",
-      },
     });
-    res.json({ product });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to update product" });
+    if (!existing) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+    const {
+      name,
+      description,
+      price,
+      originalPrice,
+      category,
+      stock,
+      tags,
+      isPopular,
+    } = req.body;
+    const parsedPrice = parseNumberField(price, "price");
+    const parsedOriginalPrice = parseNumberField(
+      originalPrice,
+      "originalPrice",
+    );
+    const parsedStock = parseNumberField(stock, "stock");
+    if (
+      parsedPrice === null ||
+      parsedOriginalPrice === null ||
+      parsedStock === null
+    ) {
+      return res.status(400).json({
+        message: "price, originalPrice and stock must all be valid numbers.",
+      });
+    }
+    let imageUrl = existing.image;
+    let newPublicId: string | null = null;
+    if (req.file) {
+      const uploaded = await uploadImage(req.file.buffer);
+      imageUrl = uploaded.secure_url;
+      newPublicId = uploaded.public_id;
+    }
+    try {
+      const product = await prisma.product.update({
+        where: {
+          id: req.params.id as string,
+        },
+        data: {
+          name,
+          description,
+          image: imageUrl,
+          price: parsedPrice,
+          originalPrice: parsedOriginalPrice,
+          category,
+          stock: parsedStock,
+          tags: Array.isArray(tags)
+            ? tags
+            : typeof tags === "string"
+              ? JSON.parse(tags)
+              : [],
+          isPopular: isPopular === true || isPopular === "true",
+        },
+      });
+      if (req.file && existing.image) {
+        const parts = existing.image.split("/");
+        const file = parts[parts.length - 1];
+        const publicId = "products/" + file.substring(0, file.lastIndexOf("."));
+        await cloudinary.uploader.destroy(publicId);
+      }
+      return res.json(product);
+    } catch (err) {
+      if (newPublicId) {
+        await cloudinary.uploader.destroy(newPublicId);
+      }
+      throw err;
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Failed to update product",
+    });
   }
 };
 
